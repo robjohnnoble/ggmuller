@@ -187,7 +187,7 @@ reorder_by_vector <- function(df, vector) {
 
 #' Create a data frame from which to create a Muller plot
 #'
-#' @param edges Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
+#' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
 #' @param threshold Numeric threshold; genotypes that never become more abundant than this threshold are omitted
 #' @param add_zeroes Logical whether to include rows with Population = 0
@@ -211,6 +211,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
     return("colnames(pop_df) must contain Generation, Identity and Population")
+  if(class(edges) == "phylo") edges <- edges$edge
   colnames(edges) <- c("Parent", "Identity")
     
   # add semi-frequencies:

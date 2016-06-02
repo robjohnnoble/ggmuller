@@ -7,7 +7,7 @@
 get_Muller_df(edges, pop_df, add_zeroes = FALSE, threshold = 0)
 }
 \arguments{
-\item{edges}{Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"}
+\item{edges}{Dataframe comprising an adjacency matrix, or tree of class "phylo"}
 
 \item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
 

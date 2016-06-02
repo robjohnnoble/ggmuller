@@ -139,7 +139,9 @@ get_path <- function(edges) {
     }
     if(path[n] == path[1]) break
     if(n > 1E6) return("Error: stuck in a loop") # to do: add more sophisticated error checking for loops, bipartite graphs, etc.
+    if(max(table(path) > 2)) return("Error: adjacency matrix seems to include loops.")
   }
+  if(length(path) != 2 * dim(edges)[1] + 2) return("Error: adjacency matrix seems to be bipartite.")
   return(path)
 }
 

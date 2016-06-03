@@ -186,8 +186,10 @@ adj_matrix_to_tree <- function(edges) {
       upped <- TRUE
     }
     if(path[n] == path[1]) break
-    if(n > 1E6) return("Error: stuck in a loop") # to do: add more sophisticated error checking for loops, bipartite graphs, etc.
+    if(n > 1E6) return("Error: stuck in a loop")
+    if(max(table(path) > 2)) return("Error: adjacency matrix seems to include loops.")
   }
+  if(length(path) != 2 * dim(edges)[1] + 2) return("Error: adjacency matrix seems to be bipartite.")
   
   # assign equal, arbitrary length to all edges:
   edges$edge.length <- 1

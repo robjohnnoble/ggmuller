@@ -10,9 +10,13 @@ Description: Create plots that combine a phylogeny and frequency dynamics.
     code this package exploits).
 Depends:
     R (>= 3.2.0)
-Imports: dplyr, ggplot2, ape
-Suggests: RColorBrewer
+Imports:
+    dplyr,
+    ggplot2,
+    ape
+Suggests:
+    RColorBrewer
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1.9000
+RoxygenNote: 5.0.1

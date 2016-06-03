@@ -113,9 +113,6 @@ get_population_df <- function(df) {
 
 #' Create a tree object of class "phylo" from an adjacency matrix
 #'
-#' Single nodes are those with exactly one daughter. 
-#' This function is required by adj_matrix_to_tree, since valid "phylo" objects cannot contain single nodes. 
-#' If pre-existing branches lack lengths then these are set to 1. 
 #' Sometimes plotting the resulting tree results in warnings; this is a bug to be fixed.
 #'
 #' @param edges Dataframe comprising an adjacency matrix, in which the first column is the parent and the second is the daughter.

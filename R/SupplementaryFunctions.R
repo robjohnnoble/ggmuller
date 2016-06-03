@@ -18,7 +18,7 @@
 #' @export
 #' @import dplyr
 branch_singles <- function(edges) {
-  new_rows <- edges %>% group_by(Parent) %>% filter(n() == 1)
+  new_rows <- edges %>% group_by_(~Parent) %>% filter(n() == 1)
   if(dim(new_rows)[1] == 0) return(edges)
   new_rows$Identity <- new_rows$Identity + max(edges)
   if(is.null(edges$edge.length)) edges$edge.length <- 1
@@ -49,6 +49,7 @@ branch_singles <- function(edges) {
 #' 
 #' # draw plot:
 #' num_cols <- length(unique(Muller_df$RelativeFitness)) + 1
+#' Muller_df$RelativeFitness <- as.factor(Muller_df$RelativeFitness)
 #' Muller_plot(Muller_df, colour_by = "RelativeFitness", 
 #'             palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
 #'             add_legend = TRUE)
@@ -58,10 +59,10 @@ branch_singles <- function(edges) {
 get_edges <- function(df, generation = NA) {
   # check column names:
   if(!("Generation" %in% colnames(df)) | !("Identity" %in% colnames(df)) | !("Parent" %in% colnames(df))) 
-    return("colnames(df) must contain Generation, Identity and Parent")
+    stop("colnames(df) must contain Generation, Identity and Parent")
   if(is.na(generation)) generation <- max(df$Generation)
-  edges <- filter(df, Generation == generation) %>% select(Parent, Identity)
-  edges <- filter(edges, Parent != Identity) # remove any row that connects a node to itself
+  edges <- filter_(df, ~Generation == generation) %>% select_(~Parent, ~Identity)
+  edges <- filter_(edges, "Parent != Identity") # remove any row that connects a node to itself
 }
 
 #' Extract population data from a larger data frame
@@ -87,6 +88,7 @@ get_edges <- function(df, generation = NA) {
 #' 
 #' # draw plot:
 #' num_cols <- length(unique(Muller_df$RelativeFitness)) + 1
+#' Muller_df$RelativeFitness <- as.factor(Muller_df$RelativeFitness)
 #' Muller_plot(Muller_df, colour_by = "RelativeFitness", 
 #'             palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
 #'             add_legend = TRUE)
@@ -96,10 +98,14 @@ get_edges <- function(df, generation = NA) {
 get_population_df <- function(df) {
   # check column names:
   if(!("Generation" %in% colnames(df)) | !("Identity" %in% colnames(df)) | !("Population" %in% colnames(df))) 
-    return("colnames(df) must contain Generation, Identity and Population")
+    stop("colnames(df) must contain Generation, Identity and Population")
   
-  max_gen_ids <- filter(df, Generation == max(Generation))$Identity
-  df <- filter(df, Identity %in% max_gen_ids)
+  . <- NULL # avoid check() note
+  Population <- NULL # avoid check() note
+  
+  max_gen <- max(df$Generation)
+  max_gen_ids <- filter_(df, ~Generation == max_gen)$Identity
+  df <- filter_(df, ~Identity %in% max_gen_ids)
   n <- length(unique(df$Identity))
   master <- data.frame(Generation = rep(unique(df$Generation), each = n),
                        Identity = unique(df$Identity))
@@ -123,8 +129,8 @@ get_population_df <- function(df) {
 #'
 #' @examples
 #' edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6)
-#' tree <- adj_matrix_to_tree(edges1)
 #' require(ape)
+#' tree <- adj_matrix_to_tree(edges1)
 #' plot(tree)
 #'
 #' @export
@@ -183,10 +189,10 @@ adj_matrix_to_tree <- function(edges) {
       upped <- TRUE
     }
     if(path[n] == path[1]) break
-    if(n > 1E6) return("Error: stuck in a loop")
-    if(max(table(path) > 2)) return("Error: adjacency matrix seems to include loops.")
+    if(n > 1E6) stop("Error: stuck in a loop")
+    if(max(table(path) > 2)) stop("Error: adjacency matrix seems to include loops.")
   }
-  if(length(path) != 2 * dim(edges)[1] + 2) return("Error: adjacency matrix seems to be bipartite.")
+  if(length(path) != 2 * dim(edges)[1] + 2) stop("Error: adjacency matrix seems to be bipartite.")
   
   # assign equal, arbitrary length to all edges:
   edges$edge.length <- 1
@@ -195,7 +201,7 @@ adj_matrix_to_tree <- function(edges) {
   edges <- branch_singles(edges)
   
   # relabel nodes to conform with "phylo" standard:
-  edges <- rbind(filter(edges, is_tip) %>% arrange(-depth, rank_at_depth), filter(edges, !is_tip) %>% arrange(depth, rank_at_depth))
+  edges <- rbind(filter_(edges, ~is_tip) %>% arrange_(~-depth, ~rank_at_depth), filter_(edges, ~is_tip == FALSE) %>% arrange_(depth, ~rank_at_depth))
   if(length(unique(edges$Identity)) > num_tips) edges$New_Identity <- c(1:num_tips, (num_tips + 2):(length(unique(edges$Identity)) + 1))
   else edges$New_Identity <- c(1:num_tips)
   edges$New_Parent <- NA
@@ -207,7 +213,7 @@ adj_matrix_to_tree <- function(edges) {
   # create phylo object:
   tree <- list()
   tree$edge.length <- edges$edge.length
-  edges <- select(edges, New_Parent, New_Identity)
+  edges <- select_(edges, ~New_Parent, ~New_Identity)
   colnames(edges) <- NULL
   rownames(edges) <- NULL
   tree$edge <- as.matrix(edges)

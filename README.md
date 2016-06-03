@@ -1,8 +1,9 @@
 # ggmuller
 Create Muller Plots of Evolutionary Dynamics
 
-To install in R with devtools:
+To install & load in R with devtools:
 
+```r
   install.packages("devtools")
   
   library(devtools)
@@ -10,3 +11,4 @@ To install in R with devtools:
   install_github("robjohnnoble/ggmuller")
 
   library(ggmuller)
+```

@@ -13,9 +13,6 @@ adj_matrix_to_tree(edges)
 A phylo object.
 }
 \description{
-Single nodes are those with exactly one daughter. 
-This function is required by adj_matrix_to_tree, since valid "phylo" objects cannot contain single nodes. 
-If pre-existing branches lack lengths then these are set to 1. 
 Sometimes plotting the resulting tree results in warnings; this is a bug to be fixed.
 }
 \examples{

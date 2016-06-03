@@ -30,6 +30,7 @@ require(RColorBrewer) # for the palette
 
 # draw plot:
 num_cols <- length(unique(Muller_df$RelativeFitness)) + 1
+Muller_df$RelativeFitness <- as.factor(Muller_df$RelativeFitness)
 Muller_plot(Muller_df, colour_by = "RelativeFitness", 
             palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
             add_legend = TRUE)

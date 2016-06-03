@@ -18,7 +18,7 @@
 #' @export
 #' @import dplyr
 move_down <- function(edges, identity) {
-  daughters <- filter(edges, Parent == identity)$Identity
+  daughters <- filter_(edges, ~Parent == identity)$Identity
   if(length(daughters) == 0) return(identity) # if it is not a parent then don't move
   return(min(daughters))
 }
@@ -43,9 +43,9 @@ move_down <- function(edges, identity) {
 #' @export
 #' @import dplyr
 move_right <- function(edges, identity) {
-  parent <- filter(edges, Identity == identity)$Parent
+  parent <- filter_(edges, ~Identity == identity)$Parent
   if(length(parent) == 0) return(identity) # if it is the initial genotype then don't move
-  siblings <- filter(edges, Parent == parent & Identity > identity)$Identity
+  siblings <- filter_(edges, ~Parent == parent, ~Identity > identity)$Identity
   if(length(siblings) == 0) return(identity) # if it is the initial genotype then don't move
   return(min(siblings))
 }
@@ -70,7 +70,7 @@ move_right <- function(edges, identity) {
 #' @export
 #' @import dplyr
 move_up <- function(edges, identity) {
-  parent <- filter(edges, Identity == identity)$Parent
+  parent <- filter_(edges, ~Identity == identity)$Parent
   if(length(parent) == 0) return(identity) # if it is the initial genotype then don't move
   return(as.numeric(parent))
 }
@@ -138,10 +138,10 @@ get_path <- function(edges) {
       upped <- TRUE
     }
     if(path[n] == path[1]) break
-    if(n > 1E6) return("Error: stuck in a loop")
-    if(max(table(path) > 2)) return("Error: adjacency matrix seems to include loops.")
+    if(n > 1E6) stop("Error: stuck in a loop")
+    if(max(table(path) > 2)) stop("Error: adjacency matrix seems to include loops.")
   }
-  if(length(path) != 2 * dim(edges)[1] + 2) return("Error: adjacency matrix seems to be bipartite.")
+  if(length(path) != 2 * dim(edges)[1] + 2) stop("Error: adjacency matrix seems to be bipartite.")
   return(path)
 }
 
@@ -168,18 +168,20 @@ get_path <- function(edges) {
 #' @export
 #' @import dplyr
 reorder_by_vector <- function(df, vector) {
+  Generation <- NULL # avoid check() note
+  Identity <- NULL # avoid check() note
   vector <- group_by(as.data.frame(vector), vector) %>% 
     mutate(Unique_id = c(vector[1], paste0(vector[1], "a")))
   gens <- unique(df$Generation)
   n_gens <- length(gens)
   n_ids <- dim(df)[1] / n_gens
-  df <- group_by(df, Generation, Identity) %>% 
+  df <- group_by_(df, ~Generation, ~Identity) %>% 
     mutate(Unique_id = c(paste0(Identity[1], "_", Generation[1]), paste0(Identity[1], "a", "_", Generation[1]))) %>% 
     ungroup
   vector <- rep(vector$Unique_id, n_gens)
   vector <- paste0(vector, "_", rep(gens, each = n_ids))
   df <- df[match(vector, df$Unique_id), ]
-  df <- group_by(df, Generation, Identity) %>% 
+  df <- group_by_(df, ~Generation, ~Identity) %>% 
     mutate(Group_id = c(Identity[1], paste0(Identity[1], "a"))) %>% 
     ungroup
   return(df)
@@ -208,20 +210,22 @@ reorder_by_vector <- function(df, vector) {
 #' @export
 #' @import dplyr
 get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
+  Population <- NULL # avoid check() note
+  
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
-    return("colnames(pop_df) must contain Generation, Identity and Population")
+    stop("colnames(pop_df) must contain Generation, Identity and Population")
   if(class(edges) == "phylo") edges <- edges$edge
   colnames(edges) <- c("Parent", "Identity")
     
   # add semi-frequencies:
-  pop_df <- pop_df %>% group_by(Generation) %>% 
+  pop_df <- pop_df %>% group_by_(~Generation) %>% 
     mutate(Frequency = (Population / sum(Population)) / 2) %>% 
     ungroup
   
   # duplicate rows:
   Muller_df <- rbind(pop_df, pop_df)
-  Muller_df <- arrange(Muller_df, Generation)
+  Muller_df <- arrange_(Muller_df, ~Generation)
   
   # get the path:
   path <- get_path(edges)
@@ -231,13 +235,13 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   Muller_df <- reorder_by_vector(Muller_df, path)
   
   # optionally remove rows with Population = 0:
-  if(!add_zeroes) Muller_df <- filter(Muller_df, Population > 0)
+  if(!add_zeroes) Muller_df <- filter_(Muller_df, ~Population > 0)
   
   # optionally remove rare genotypes, and recalculate frequencies:
   if(threshold > 0) {
-    Muller_df <- Muller_df %>% group_by(Identity) %>% 
-      filter(max(Frequency) >= threshold)
-    Muller_df <- Muller_df %>% group_by(Generation) %>% 
+    Muller_df <- Muller_df %>% group_by_(~Identity) %>% 
+      filter_(~max(Frequency) >= threshold)
+    Muller_df <- Muller_df %>% group_by_(~Generation) %>% 
       mutate(Frequency = Population / sum(Population)) %>% 
       ungroup
   }
@@ -272,8 +276,11 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
                     "#8A7C64", "#599861")
     palette <- c("black", rep(long_palette, ceiling(max(Muller_df$Identity) / length(long_palette))))
   }
-  if(is.na(colour_by)) colour_by <- "Identity"
-  ggplot(Muller_df, aes(x=Generation, y=Frequency, group = Group_id, fill = as.factor(get(paste0(colour_by))), colour = as.factor(get(paste0(colour_by))))) + 
+  if(is.na(colour_by)) {
+    colour_by <- "Identity"
+    Muller_df$Identity <- as.factor(Muller_df$Identity)
+  }
+  ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area(size = 0.5) + # add lines to conceal the gaps between areas
     scale_fill_manual(values = palette, name = colour_by) + 
     scale_color_manual(values = palette) + 

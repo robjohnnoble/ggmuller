@@ -201,7 +201,7 @@ adj_matrix_to_tree <- function(edges) {
   edges <- branch_singles(edges)
   
   # relabel nodes to conform with "phylo" standard:
-  edges <- rbind(filter_(edges, ~is_tip) %>% arrange_(~-depth, ~rank_at_depth), filter_(edges, ~is_tip == FALSE) %>% arrange_(depth, ~rank_at_depth))
+  edges <- rbind(filter_(edges, ~is_tip) %>% arrange_(~-depth, ~rank_at_depth), filter_(edges, ~is_tip == FALSE) %>% arrange_(~depth, ~rank_at_depth))
   if(length(unique(edges$Identity)) > num_tips) edges$New_Identity <- c(1:num_tips, (num_tips + 2):(length(unique(edges$Identity)) + 1))
   else edges$New_Identity <- c(1:num_tips)
   edges$New_Parent <- NA

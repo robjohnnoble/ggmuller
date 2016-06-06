@@ -63,6 +63,7 @@ get_edges <- function(df, generation = NA) {
   if(is.na(generation)) generation <- max(df$Generation)
   edges <- filter_(df, ~Generation == generation) %>% select_(~Parent, ~Identity)
   edges <- filter_(edges, "Parent != Identity") # remove any row that connects a node to itself
+  return(edges)
 }
 
 #' Extract population data from a larger data frame

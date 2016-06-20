@@ -120,8 +120,6 @@ get_population_df <- function(df) {
 
 #' Create a tree object of class "phylo" from an adjacency matrix
 #'
-#' Sometimes plotting the resulting tree results in warnings; this is a bug to be fixed.
-#'
 #' @param edges Dataframe comprising an adjacency matrix, in which the first column is the parent and the second is the daughter.
 #'
 #' @return A phylo object.
@@ -218,6 +216,7 @@ adj_matrix_to_tree <- function(edges) {
   colnames(edges) <- NULL
   rownames(edges) <- NULL
   tree$edge <- as.matrix(edges)
+  tree$edge <- cbind(as.integer(tree$edge[,1]), as.integer(tree$edge[,2]))
   tree$Nnode <- as.integer(max(edges) - num_tips)
   tree$tip.label <- as.character(rep(NA, num_tips))
   class(tree) <- "phylo"

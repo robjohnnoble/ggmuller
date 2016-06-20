@@ -13,7 +13,6 @@ adj_matrix_to_tree(edges)
 A phylo object.
 }
 \description{
-Sometimes plotting the resulting tree results in warnings; this is a bug to be fixed.
 }
 \examples{
 edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6)

@@ -20,7 +20,7 @@
 branch_singles <- function(edges) {
   new_rows <- edges %>% group_by_(~Parent) %>% filter(n() == 1)
   if(dim(new_rows)[1] == 0) return(edges)
-  new_rows$Identity <- new_rows$Identity + max(edges)
+  new_rows$Identity <- 1 + max(edges)
   if(is.null(edges$edge.length)) edges$edge.length <- 1
   new_rows$edge.length <- 0
   return(rbind(edges, new_rows))
@@ -139,6 +139,7 @@ adj_matrix_to_tree <- function(edges) {
   # initialise:
   edges <- as.data.frame(edges)
   colnames(edges) <- c("Parent", "Identity")
+  edges <- branch_singles(edges) # add branches of length zero to get rid of single nodes
   depth <- 0
   next_rank <- vector()
   n <- 1
@@ -192,12 +193,6 @@ adj_matrix_to_tree <- function(edges) {
     if(max(table(path) > 2)) stop("Error: adjacency matrix seems to include loops.")
   }
   if(length(path) != 2 * dim(edges)[1] + 2) stop("Error: adjacency matrix seems to be bipartite.")
-  
-  # assign equal, arbitrary length to all edges:
-  edges$edge.length <- 1
-  
-  # add branches of length zero to get rid of single nodes:
-  edges <- branch_singles(edges)
   
   # relabel nodes to conform with "phylo" standard:
   edges <- rbind(filter_(edges, ~is_tip) %>% arrange_(~-depth, ~rank_at_depth), filter_(edges, ~is_tip == FALSE) %>% arrange_(~depth, ~rank_at_depth))

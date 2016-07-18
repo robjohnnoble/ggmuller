@@ -18,7 +18,7 @@
 #' @export
 #' @import dplyr
 branch_singles <- function(edges) {
-  new_rows <- edges %>% group_by_(~Parent) %>% filter(n() == 1)
+  new_rows <- edges %>% group_by_(~Parent) %>% filter(n() == 1) %>% ungroup()
   if(dim(new_rows)[1] == 0) return(edges)
   new_rows$Identity <- 1 + max(edges)
   if(is.null(edges$edge.length)) edges$edge.length <- 1

@@ -19,8 +19,9 @@
 #' @import dplyr
 branch_singles <- function(edges) {
   new_rows <- edges %>% group_by_(~Parent) %>% filter(n() == 1) %>% ungroup()
-  if(dim(new_rows)[1] == 0) return(edges)
-  new_rows$Identity <- 1 + max(edges)
+  num_new_rows <- dim(new_rows)[1]
+  if(num_new_rows == 0) return(edges)
+  new_rows$Identity <- 1:num_new_rows + max(edges)
   if(is.null(edges$edge.length)) edges$edge.length <- 1
   new_rows$edge.length <- 0
   return(rbind(edges, new_rows))
@@ -139,6 +140,17 @@ adj_matrix_to_tree <- function(edges) {
   # initialise:
   edges <- as.data.frame(edges)
   colnames(edges) <- c("Parent", "Identity")
+  if(is.factor(edges$Identity)) {
+    edges$Identity <- levels(edges$Identity)[edges$Identity]
+    edges$Parent <- levels(edges$Parent)[edges$Parent]
+  }
+  if(is.character(edges$Identity)) {
+    lev_set <- unique(c(edges$Identity, edges$Parent))
+    edges$Identity <- factor(edges$Identity, levels = lev_set)
+    edges$Parent <- factor(edges$Parent, levels = lev_set)
+    edges$Identity <- as.numeric(edges$Identity)
+    edges$Parent <- as.numeric(edges$Parent)
+  }
   edges <- branch_singles(edges) # add branches of length zero to get rid of single nodes
   depth <- 0
   next_rank <- vector()
@@ -215,7 +227,7 @@ adj_matrix_to_tree <- function(edges) {
   tree$Nnode <- as.integer(max(edges) - num_tips)
   tree$tip.label <- as.character(rep(NA, num_tips))
   class(tree) <- "phylo"
-  reorder(tree, order = "cladewise")
+  reorder.phylo(tree, order = "cladewise")
   attr(tree, "order") <- "cladewise"
   
   return(tree)

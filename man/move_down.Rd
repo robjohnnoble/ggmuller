@@ -4,18 +4,18 @@
 \alias{move_down}
 \title{Move to daughter in adjacency matrix}
 \usage{
-move_down(edges, identity)
+move_down(edges, parent)
 }
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"}
 
-\item{identity}{Integer specifying parent whose daughter is to be found}
+\item{parent}{number or character string specifying whose daughter is to be found}
 }
 \value{
-An integer specifying the daughter's Identity.
+The daughter's Identity.
 }
 \description{
-Returns the smallest Identity value among the set of daughters. 
+Returns the first Identity value in the sorted set of daughters. 
 When parent has no daughters, returns the input Identity.
 }
 \examples{

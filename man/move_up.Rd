@@ -9,10 +9,10 @@ move_up(edges, identity)
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"}
 
-\item{identity}{Integer specifying daughter whose parent is to be found}
+\item{identity}{number or character string specifying daughter whose parent is to be found}
 }
 \value{
-An integer specifying the Parent.
+The Parent value.
 }
 \description{
 Returns the corresponding Parent value. 

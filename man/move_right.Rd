@@ -9,13 +9,13 @@ move_right(edges, identity)
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"}
 
-\item{identity}{Integer specifying parent whose daughter is to be found}
+\item{identity}{number or character string specifying whose sibling is to be found}
 }
 \value{
-An integer specifying the sibling's Identity.
+The sibling's Identity.
 }
 \description{
-Returns the next smallest Identity value among the set of siblings. 
+Returns the next Identity value among the sorted set of siblings. 
 When there is no such sibling, returns the input Identity.
 }
 \examples{

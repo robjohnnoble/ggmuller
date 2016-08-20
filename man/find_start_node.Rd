@@ -10,7 +10,7 @@ find_start_node(edges)
 \item{edges}{Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"}
 }
 \value{
-An integer specifying the Parent that is the common ancestor.
+The Parent that is the common ancestor.
 }
 \description{
 Returns the Parent value of the common ancestor.

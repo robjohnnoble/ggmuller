@@ -29,6 +29,20 @@ Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
 # one can also choose to include rows with Population = 0:
 Muller_df <- get_Muller_df(example_edges, example_pop_df, add_zeroes = TRUE, threshold = 0.005)
 
+# the genotype names can be arbitrary character strings instead of numbers:
+example_edges_char <- example_edges
+example_edges_char$Identity <- paste0("foo", example_edges_char$Identity, "bar")
+example_edges_char$Parent <- paste0("foo", example_edges_char$Parent, "bar")
+example_pop_df_char <- example_pop_df
+example_pop_df_char$Identity <- paste0("foo", example_pop_df_char$Identity, "bar")
+Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+
+# the genotype names can also be factors (which is the default for characters in imported data):
+example_edges_char$Identity <- as.factor(example_edges_char$Identity)
+example_edges_char$Parent <- as.factor(example_edges_char$Parent)
+example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
+Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+
 }
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}

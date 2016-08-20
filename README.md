@@ -17,7 +17,7 @@ library(ggmuller)
 
 ### usage
 
-The main function in `ggmuller` is `Muller_plot`, which we can run on some data included in the package:
+The main functions in `ggmuller` are `get_Muller_df` and `Muller_plot`, which we can run on some data included in the package:
 
 ``` r
 # get data

@@ -1,12 +1,12 @@
 #' Move to daughter in adjacency matrix
 #'
-#' Returns the smallest Identity value among the set of daughters. 
+#' Returns the first Identity value in the sorted set of daughters. 
 #' When parent has no daughters, returns the input Identity.
 #'
 #' @param edges Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
-#' @param identity Integer specifying parent whose daughter is to be found
+#' @param parent number or character string specifying whose daughter is to be found
 #'
-#' @return An integer specifying the daughter's Identity.
+#' @return The daughter's Identity.
 #' 
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
 #' @seealso \code{\link{move_up}} \code{\link{move_right}}
@@ -17,21 +17,23 @@
 #'
 #' @export
 #' @import dplyr
-move_down <- function(edges, identity) {
-  daughters <- filter_(edges, ~Parent == identity)$Identity
-  if(length(daughters) == 0) return(identity) # if it is not a parent then don't move
-  return(min(daughters))
+move_down <- function(edges, parent) {
+  if(!(parent %in% edges$Identity) & !(parent %in% edges$Parent)) stop("Invalid parent.")
+  daughters <- filter_(edges, ~Parent == parent)$Identity
+  if(length(daughters) == 0) return(parent) # if it is not a parent then don't move
+  if(is.factor(daughters)) daughters <- levels(daughters)[daughters]
+  return(sort(daughters)[1])
 }
 
 #' Move to sibling in adjacency matrix
 #'
-#' Returns the next smallest Identity value among the set of siblings. 
+#' Returns the next Identity value among the sorted set of siblings. 
 #' When there is no such sibling, returns the input Identity.
 #'
 #' @param edges Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
-#' @param identity Integer specifying parent whose daughter is to be found
+#' @param identity number or character string specifying whose sibling is to be found
 #'
-#' @return An integer specifying the sibling's Identity.
+#' @return The sibling's Identity.
 #' 
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
 #' @seealso \code{\link{move_up}} \code{\link{move_down}}
@@ -43,11 +45,15 @@ move_down <- function(edges, identity) {
 #' @export
 #' @import dplyr
 move_right <- function(edges, identity) {
+  if(!(identity %in% edges$Identity) & !(identity %in% edges$Parent)) stop("Invalid identity.")
   parent <- filter_(edges, ~Identity == identity)$Parent
   if(length(parent) == 0) return(identity) # if it is the initial genotype then don't move
-  siblings <- filter_(edges, ~Parent == parent, ~Identity > identity)$Identity
+  siblings <- sort(filter_(edges, ~Parent == parent)$Identity)
+  siblings <- siblings[which(siblings == identity) + 1]
   if(length(siblings) == 0) return(identity) # if it is the initial genotype then don't move
-  return(min(siblings))
+  if(is.na(siblings)) return(identity) # if it is the initial genotype then don't move
+  if(is.factor(siblings)) siblings <- levels(siblings)[siblings]
+  return(siblings)
 }
 
 #' Move to parent in adjacency matrix
@@ -56,9 +62,9 @@ move_right <- function(edges, identity) {
 #' When there is no parent (i.e. at the top of the tree), returns the input Identity.
 #'
 #' @param edges Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
-#' @param identity Integer specifying daughter whose parent is to be found
+#' @param identity number or character string specifying daughter whose parent is to be found
 #'
-#' @return An integer specifying the Parent.
+#' @return The Parent value.
 #' 
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
 #' @seealso \code{\link{move_down}} \code{\link{move_right}}
@@ -70,9 +76,11 @@ move_right <- function(edges, identity) {
 #' @export
 #' @import dplyr
 move_up <- function(edges, identity) {
+  if(!(identity %in% edges$Identity) & !(identity %in% edges$Parent)) stop("Invalid identity.")
   parent <- filter_(edges, ~Identity == identity)$Parent
   if(length(parent) == 0) return(identity) # if it is the initial genotype then don't move
-  return(as.numeric(parent))
+  if(is.factor(parent)) parent <- levels(parent)[parent]
+  return(parent)
 }
 
 #' Move to top of adjacency matrix
@@ -81,7 +89,7 @@ move_up <- function(edges, identity) {
 #'
 #' @param edges Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
 #'
-#' @return An integer specifying the Parent that is the common ancestor.
+#' @return The Parent that is the common ancestor.
 #' 
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
 #'
@@ -92,7 +100,8 @@ move_up <- function(edges, identity) {
 #' @export
 #' @import dplyr
 find_start_node <- function(edges) {
-  start <- min(edges$Parent) # reasonable guess
+  start <- sort(edges$Parent)[1] # reasonable guess
+  if(is.factor(start)) start <- levels(start)[start]
   repeat {
     if(move_up(edges, start) == start) break
     start <- move_up(edges, start)
@@ -171,7 +180,7 @@ reorder_by_vector <- function(df, vector) {
   Generation <- NULL # avoid check() note
   Identity <- NULL # avoid check() note
   vector <- group_by(as.data.frame(vector), vector) %>% 
-    mutate(Unique_id = c(vector[1], paste0(vector[1], "a")))
+    mutate(Unique_id = c(as.character(vector[1]), paste0(vector[1], "a")))
   gens <- unique(df$Generation)
   n_gens <- length(gens)
   n_ids <- dim(df)[1] / n_gens
@@ -182,7 +191,7 @@ reorder_by_vector <- function(df, vector) {
   vector <- paste0(vector, "_", rep(gens, each = n_ids))
   df <- df[match(vector, df$Unique_id), ]
   df <- group_by_(df, ~Generation, ~Identity) %>% 
-    mutate(Group_id = c(Identity[1], paste0(Identity[1], "a"))) %>% 
+    mutate(Group_id = c(as.character(Identity[1]), paste0(Identity[1], "a"))) %>% 
     ungroup
   return(df)
 }
@@ -207,6 +216,20 @@ reorder_by_vector <- function(df, vector) {
 #' # one can also choose to include rows with Population = 0:
 #' Muller_df <- get_Muller_df(example_edges, example_pop_df, add_zeroes = TRUE, threshold = 0.005)
 #'
+#' # the genotype names can be arbitrary character strings instead of numbers:
+#' example_edges_char <- example_edges
+#' example_edges_char$Identity <- paste0("foo", example_edges_char$Identity, "bar")
+#' example_edges_char$Parent <- paste0("foo", example_edges_char$Parent, "bar")
+#' example_pop_df_char <- example_pop_df
+#' example_pop_df_char$Identity <- paste0("foo", example_pop_df_char$Identity, "bar")
+#' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+#'
+#' # the genotype names can also be factors (which is the default for characters in imported data):
+#' example_edges_char$Identity <- as.factor(example_edges_char$Identity)
+#' example_edges_char$Parent <- as.factor(example_edges_char$Parent)
+#' example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
+#' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+#'
 #' @export
 #' @import dplyr
 get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
@@ -215,13 +238,47 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
     stop("colnames(pop_df) must contain Generation, Identity and Population")
-  if(class(edges) == "phylo") edges <- edges$edge
+  if(class(edges) == "phylo") {
+    collapse.singles(edges)
+    edges <- edges$edge
+  }
   colnames(edges) <- c("Parent", "Identity")
-    
+  if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
+  if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
+  
+  # remove genotypes that never have nonzero population size:
+  pop_df <- group_by_(pop_df, ~Identity) %>% 
+    filter_(~max(Population) > 0) %>% 
+    ungroup()
+  
+  # construct a dataframe with "Age" of each genotype:
+  pop_df <- arrange_(pop_df, ~-Population)
+  pop_df <- arrange_(pop_df, ~Generation)
+  lookup <- group_by_(pop_df, ~Identity) %>% 
+    filter_(~Population > 0) %>% 
+    slice(1) %>% 
+    arrange_(~Generation) %>% 
+    ungroup()
+  lookup <- mutate(lookup, Age = 1:dim(lookup)[1]) %>% 
+    select_(~-c(Generation, Population))
+  if(is.factor(lookup$Identity)) lookup$Identity <- levels(lookup$Identity)[lookup$Identity]
+  lookup <- select_(lookup, ~c(Identity, Age))
+  
   # add semi-frequencies:
   pop_df <- pop_df %>% group_by_(~Generation) %>% 
     mutate(Frequency = (Population / sum(Population)) / 2) %>% 
-    ungroup
+    ungroup()
+  
+  # replace each genotype name in adjacency matrix with corresponding Age:
+  edges <- filter_(edges, ~Identity %in% lookup$Identity)
+  edges <- left_join(edges, lookup, by = "Identity")
+  edges <- select_(edges, ~-Identity)
+  colnames(edges) <- c("Parent", "Identity")
+  edges <- arrange_(edges, ~Identity)
+  colnames(lookup)[1] <- "Parent"
+  edges <- left_join(edges, lookup, by = "Parent")
+  edges$Parent <- edges$Age
+  edges <- select_(edges, ~-Age)
   
   # duplicate rows:
   Muller_df <- rbind(pop_df, pop_df)
@@ -230,6 +287,9 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   # get the path:
   path <- get_path(edges)
   path <- rev(path) # apparently, the convention for Muller plots to have earliest-arriving genotypes plotted nearest the top
+  
+  # replace each Age in the path with corresponding genotype name:
+  path <- left_join(data.frame(Age = path), lookup, by = "Age")$Parent
   
   # rearrange the population data according to the path:
   Muller_df <- reorder_by_vector(Muller_df, path)
@@ -274,7 +334,7 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
                     "#673770", "#D3D93E", "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
                     "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", "#5E738F", "#D1A33D", 
                     "#8A7C64", "#599861")
-    palette <- c("black", rep(long_palette, ceiling(max(Muller_df$Identity) / length(long_palette))))
+    palette <- c("black", rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette))))
   }
   if(is.na(colour_by)) {
     colour_by <- "Identity"

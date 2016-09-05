@@ -246,16 +246,11 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
   if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
   
-  # remove genotypes that never have nonzero population size:
-  pop_df <- group_by_(pop_df, ~Identity) %>% 
-    filter_(~max(Population) > 0) %>% 
-    ungroup()
-  
   # construct a dataframe with "Age" of each genotype:
   pop_df <- arrange_(pop_df, ~-Population)
   pop_df <- arrange_(pop_df, ~Generation)
   lookup <- group_by_(pop_df, ~Identity) %>% 
-    filter_(~Population > 0) %>% 
+    filter_(~Population > 0 | Generation == max(Generation)) %>% 
     slice(1) %>% 
     arrange_(~Generation) %>% 
     ungroup()

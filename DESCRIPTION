@@ -1,6 +1,6 @@
 Package: ggmuller
 Title: Create Muller Plots of Evolutionary Dynamics
-Version: 0.11
+Version: 0.1.1
 Year: 2016
 Authors@R: person("Robert", "Noble", email = "robjohnnoble@gmail.com", role = c("aut", "cre"))
 Description: Create plots that combine a phylogeny and frequency dynamics. 

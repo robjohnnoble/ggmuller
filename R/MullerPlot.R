@@ -289,9 +289,6 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   # rearrange the population data according to the path:
   Muller_df <- reorder_by_vector(Muller_df, path)
   
-  # optionally remove rows with Population = 0:
-  if(!add_zeroes) Muller_df <- filter_(Muller_df, ~Population > 0)
-  
   # optionally remove rare genotypes, and recalculate frequencies:
   if(threshold > 0) {
     Muller_df <- Muller_df %>% group_by_(~Identity) %>% 
@@ -300,8 +297,13 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
       mutate(Frequency = Population / sum(Population)) %>% 
       ungroup()
   }
-  # the following line adjusts for ggplot2 v.2.2.0, which (unlike v.2.1.0) stacks areas in order of their factor levels
-  Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(as.data.frame(filter(Muller_df, Generation == max(Generation)))$Group_id))
+  # the following adjusts for ggplot2 v.2.2.0, which (unlike v.2.1.0) stacks areas in order of their factor levels
+  Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(
+    unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)
+    ))
+  
+  # optionally remove rows with Population = 0:
+  if(!add_zeroes) Muller_df <- filter_(Muller_df, ~Population > 0)
   
   return(Muller_df)
 }

@@ -298,8 +298,10 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
       filter_(~max(Frequency) >= threshold)
     Muller_df <- Muller_df %>% group_by_(~Generation) %>% 
       mutate(Frequency = Population / sum(Population)) %>% 
-      ungroup
+      ungroup()
   }
+  # the following line adjusts for ggplot2 v.2.2.0, which (unlike v.2.1.0) stacks areas in order of their factor levels
+  Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(as.data.frame(filter(Muller_df, Generation == max(Generation)))$Group_id))
   
   return(Muller_df)
 }

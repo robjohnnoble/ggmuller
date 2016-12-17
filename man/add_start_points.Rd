@@ -13,10 +13,13 @@ add_start_points(pop_df)
 The input Dataframe with additional rows.
 }
 \description{
-Add rows to a population dataframe to ensure genotype starting points are plotted correctly
+The function 1) identifies the time points at which new genotypes appear;
+2) copies all the rows of data for these time points; 3) modifies the copied rows by slighlty decreasing
+Generation and setting Population of the emerging genotypes to be close to zero;
+and then 4) adds the modified rows to the dataframe. This ensures that ggplot doesn't plot blank spaces
+where genotypes first emerge.
 }
 \examples{
-edges1 <- data.frame(Parent = 1:3, Identity = 2:4)
 pop1 <- data.frame(Generation = rep(1:5, each = 4), Identity = rep(1:4, 5), 
                    Population = c(1,0,0,0,1,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1))
 add_start_points(pop1)

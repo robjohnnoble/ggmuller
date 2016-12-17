@@ -8,7 +8,7 @@ output:
 
 Create Muller Plots of Evolutionary Dynamics
 
-### installation
+### Installation
 
 To install & load in R with devtools:
 
@@ -25,7 +25,7 @@ library(ggmuller)
 set.seed(1)
 ```
 
-### usage
+### Basic usage
 
 The main function in `ggmuller` is `Muller_plot`, which we can run on some data included in the package:
 
@@ -36,3 +36,7 @@ Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
 # generate pretty plot
 Muller_plot(Muller_df)
 ```
+
+### How-to guide with examples
+
+For an introduction to how the package works, an overview of its features, and some worked examples, see the blog post on [Visualizing evolutionary dynamics with ggmuller](https://thesefewlines.wordpress.com/2016/08/20/how-to-ggmuller/).

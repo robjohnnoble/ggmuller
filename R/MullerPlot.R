@@ -196,6 +196,63 @@ reorder_by_vector <- function(df, vector) {
   return(df)
 }
 
+#' Add rows to a population dataframe to ensure genotype starting points are plotted correctly
+#'
+#' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
+#'
+#' @return The input Dataframe with additional rows.
+#'
+#' @author Rob Noble, \email{robjohnnoble@gmail.com}
+#'
+#' @examples
+#' edges1 <- data.frame(Parent = 1:3, Identity = 2:4)
+#' pop1 <- data.frame(Generation = rep(1:5, each = 4), Identity = rep(1:4, 5), 
+#'                    Population = c(1,0,0,0,1,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1))
+#' add_start_points(pop1)
+#'
+#' @export
+#' @import dplyr
+add_start_points <- function(pop_df) {
+  # set small time interval:
+  all_gens_list <- unique(pop_df$Generation)
+  delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list))))
+  
+  # set small initial population size:
+  total_pops <- group_by_(pop_df, ~Generation) %>%
+    summarise_(total_pop = ~sum(Population))
+  min_total_pop <- min(total_pops$total_pop)
+  init_size <- 1E-6 * min_total_pop
+  
+  # get reference list of generations at which new genotypes appear:
+  min_gen <- min(pop_df$Generation)
+  first_gens <- group_by_(pop_df, ~Identity) %>%
+    filter_(~Population > 0) %>%
+    summarise_(Generation = ~min(Generation)) %>%
+    filter_(~Generation > min_gen) %>%
+    ungroup()
+  
+  # copy all rows for generations at which new genotypes appear:
+  gens_list <- unique(first_gens$Generation)
+  new_rows <- filter_(pop_df, ~Generation %in% gens_list)
+  # adjust generations of copied rows:
+  new_rows$Generation <- new_rows$Generation - delta
+  # add the copied rows to the dataframe:
+  pop_df <- bind_rows(pop_df, new_rows) %>%
+    arrange_(~Generation, ~Identity)
+  
+  # adjust generations in reference list:
+  first_gens$Generation <- first_gens$Generation - delta
+  # set small initial populations in reference list:
+  first_gens$Population2 <- init_size
+  
+  # replace initial populations in the dataframe with values from reference list:
+  pop_df <- merge(pop_df, first_gens, all.x = TRUE)
+  pop_df$Population <- ifelse(is.na(pop_df$Population2), pop_df$Population, pop_df$Population2)
+  pop_df <- pop_df[, names(pop_df) != "Population2"]
+  
+  return(pop_df)
+}
+
 #' Create a data frame from which to create a Muller plot
 #'
 #' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
@@ -245,6 +302,9 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
   colnames(edges) <- c("Parent", "Identity")
   if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
   if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
+  
+  # add rows to pop_df to ensure genotype starting points are plotted correctly:
+  pop_df <- add_start_points(pop_df)
   
   # construct a dataframe with "Age" of each genotype:
   pop_df <- arrange_(pop_df, ~-Population)

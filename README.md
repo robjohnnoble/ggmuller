@@ -32,3 +32,11 @@ Muller_plot(Muller_df)
 ### How-to guide with examples
 
 For an introduction to how the package works, an overview of its features, and some worked examples, see the blog post on [Visualizing evolutionary dynamics with ggmuller](https://thesefewlines.wordpress.com/2016/08/20/how-to-ggmuller/).
+
+### Version history
+
+0.1.0: First release.
+
+0.1.1: Essential update for compatibility with ggplot2 version 2.2.0.
+
+0.1.2: Better plotting of the points at which genotypes emerge.

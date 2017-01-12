@@ -40,3 +40,9 @@ For an introduction to how the package works, an overview of its features, and s
 0.1.1: Essential update for compatibility with ggplot2 version 2.2.0.
 
 0.1.2: Better plotting of the points at which genotypes emerge.
+
+### Citation
+
+If you use ggmuller then please ensure your citation includes the following DOI:
+[![DOI](https://zenodo.org/badge/60275411.svg)](https://zenodo.org/badge/latestdoi/60275411)
+

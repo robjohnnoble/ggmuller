@@ -43,6 +43,7 @@ For an introduction to how the package works, an overview of its features, and s
 
 ### Citation
 
-If you use ggmuller then please ensure your citation includes the following DOI:
+If you use ggmuller then please ensure your citation includes DOI:10.5281/zenodo.240589.
+
 [![DOI](https://zenodo.org/badge/60275411.svg)](https://zenodo.org/badge/latestdoi/60275411)
 

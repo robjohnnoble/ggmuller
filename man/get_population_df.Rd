@@ -35,10 +35,9 @@ Muller_plot(Muller_df, colour_by = "RelativeFitness",
             add_legend = TRUE)
 
 }
-\author{
-Rob Noble, \email{robjohnnoble@gmail.com}
-}
 \seealso{
 \code{\link{get_edges}}
 }
-
+\author{
+Rob Noble, \email{robjohnnoble@gmail.com}
+}

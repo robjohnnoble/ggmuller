@@ -12,4 +12,3 @@ data(example_edges)
 Example dataframe comprising an adjacency matrix.
 }
 \keyword{datasets}
-

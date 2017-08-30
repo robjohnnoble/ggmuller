@@ -3,3 +3,6 @@
 
 # hide pdfs
 ./*.pdf
+
+^readme_files$
+^readme\.Rmd$

@@ -26,4 +26,3 @@ branch_singles(edges1)
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}
 }
-

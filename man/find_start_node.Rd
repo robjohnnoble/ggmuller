@@ -23,4 +23,3 @@ find_start_node(edges1)
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}
 }
-

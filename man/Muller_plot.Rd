@@ -26,10 +26,9 @@ Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
 Muller_plot(Muller_df)
 
 }
-\author{
-Rob Noble, \email{robjohnnoble@gmail.com}
-}
 \seealso{
 \code{\link{get_Muller_df}}
 }
-
+\author{
+Rob Noble, \email{robjohnnoble@gmail.com}
+}

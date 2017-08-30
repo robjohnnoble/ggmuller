@@ -44,10 +44,9 @@ example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
 Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
 
 }
-\author{
-Rob Noble, \email{robjohnnoble@gmail.com}
-}
 \seealso{
 \code{\link{Muller_plot}}
 }
-
+\author{
+Rob Noble, \email{robjohnnoble@gmail.com}
+}

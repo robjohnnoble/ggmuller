@@ -179,20 +179,34 @@ get_path <- function(edges) {
 reorder_by_vector <- function(df, vector) {
   Generation <- NULL # avoid check() note
   Identity <- NULL # avoid check() note
+  
+  # add unique id column to the vector:
   vector <- group_by(as.data.frame(vector), vector) %>% 
     mutate(Unique_id = c(as.character(vector[1]), paste0(vector[1], "a")))
-  gens <- unique(df$Generation)
-  n_gens <- length(gens)
-  n_ids <- dim(df)[1] / n_gens
-  df <- group_by_(df, ~Generation, ~Identity) %>% 
-    mutate(Unique_id = c(paste0(Identity[1], "_", Generation[1]), paste0(Identity[1], "a", "_", Generation[1]))) %>% 
-    ungroup
+  
+  # useful parameters:
+  gens <- unique(df$Generation) # list of unique time points
+  n_gens <- length(gens) # number of unique time points
+  n_ids <- dim(df)[1] / n_gens # number of unique ids
+  
+  # add unique id and group id columns to the dataframe:
+  dup <- duplicated(df)
+  df$count <- 1:nrow(df)
+  B <- data.frame(t(apply(df, 1, function(x)
+    if(dup[as.numeric(x["count"])]) c(paste0(x["Identity"], "a"), paste(x["Identity"], x["Generation"], sep = "a_")) 
+    else c(x["Identity"], paste(x["Identity"], x["Generation"], sep = "_")))))
+  colnames(B) <- c("Group_id", "Unique_id")
+  B <- data.frame(lapply(B, as.character), stringsAsFactors=FALSE)
+  df <- cbind(df[-ncol(df)], B)
+  
+  # keep only the unique id column of the vector, repeated n_gens times:
   vector <- rep(vector$Unique_id, n_gens)
+  # concatenate the vector entries with the generation values:
   vector <- paste0(vector, "_", rep(gens, each = n_ids))
+  
+  # reorder the dataframe by the vector:
   df <- df[match(vector, df$Unique_id), ]
-  df <- group_by_(df, ~Generation, ~Identity) %>% 
-    mutate(Group_id = c(as.character(Identity[1]), paste0(Identity[1], "a"))) %>% 
-    ungroup
+  
   return(df)
 }
 

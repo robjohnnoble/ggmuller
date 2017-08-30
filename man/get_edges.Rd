@@ -36,10 +36,9 @@ Muller_plot(Muller_df, colour_by = "RelativeFitness",
             add_legend = TRUE)
 
 }
-\author{
-Rob Noble, \email{robjohnnoble@gmail.com}
-}
 \seealso{
 \code{\link{get_population_df}}
 }
-
+\author{
+Rob Noble, \email{robjohnnoble@gmail.com}
+}

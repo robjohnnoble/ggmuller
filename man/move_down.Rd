@@ -23,10 +23,9 @@ edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6)
 move_down(edges1, 3)
 
 }
-\author{
-Rob Noble, \email{robjohnnoble@gmail.com}
-}
 \seealso{
 \code{\link{move_up}} \code{\link{move_right}}
 }
-
+\author{
+Rob Noble, \email{robjohnnoble@gmail.com}
+}

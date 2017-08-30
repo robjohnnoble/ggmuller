@@ -28,10 +28,9 @@ path <- get_path(edges1) # path through the adjacency matrix
 reorder_by_vector(df, path)
 
 }
-\author{
-Rob Noble, \email{robjohnnoble@gmail.com}
-}
 \seealso{
 \code{\link{get_path}}
 }
-
+\author{
+Rob Noble, \email{robjohnnoble@gmail.com}
+}

@@ -12,4 +12,3 @@ data(example_pop_df)
 Example dataframe containing population dynamics.
 }
 \keyword{datasets}
-

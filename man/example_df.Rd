@@ -12,4 +12,3 @@ data(example_df)
 Example dataframe containing both phylogenetic information and population dynamics.
 }
 \keyword{datasets}
-

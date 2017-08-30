@@ -24,4 +24,3 @@ get_path(edges1)
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}
 }
-

@@ -192,11 +192,14 @@ reorder_by_vector <- function(df, vector) {
   # add unique id and group id columns to the dataframe:
   dup <- duplicated(df)
   df$count <- 1:nrow(df)
+  df$Generation <- as.character(df$Generation)
+  df$Identity <- as.character(df$Identity)
   B <- data.frame(t(apply(df, 1, function(x)
-    if(dup[as.numeric(x["count"])]) c(paste0(x["Identity"], "a"), paste(x["Identity"], x["Generation"], sep = "a_")) 
-    else c(x["Identity"], paste(x["Identity"], x["Generation"], sep = "_")))))
+    if(dup[as.numeric(x["count"])]) c(paste0(x["Identity"], "a"), paste0(x["Identity"], "a_", x["Generation"])) 
+    else c(x["Identity"], paste0(x["Identity"], "_", x["Generation"])))))
   colnames(B) <- c("Group_id", "Unique_id")
   B <- data.frame(lapply(B, as.character), stringsAsFactors=FALSE)
+  df$Generation <- as.numeric(df$Generation)
   df <- cbind(df[-ncol(df)], B)
   
   # keep only the unique id column of the vector, repeated n_gens times:

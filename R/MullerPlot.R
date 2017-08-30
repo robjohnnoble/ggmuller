@@ -353,8 +353,9 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   
   # add semi-frequencies:
   pop_df <- pop_df %>% group_by_(~Generation) %>% 
-    mutate(Frequency = (Population / sum(Population)) / 2) %>% 
+    mutate(Frequency = (Population / sum(Population)) / 2) %>%
     ungroup()
+  pop_df$Frequency[is.nan(pop_df$Frequency)] <- 0
   
   # replace each genotype name in adjacency matrix with corresponding Age:
   edges <- filter_(edges, ~Identity %in% lookup$Identity)

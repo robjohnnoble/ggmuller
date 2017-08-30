@@ -41,6 +41,8 @@ For an introduction to how the package works, an overview of its features, and s
 
 0.1.2: Better plotting of the points at which genotypes emerge.
 
+0.1.3: Compatibility with dplyr version 0.7.2; add option for smoother plotting of genotype emergence points.
+
 ### Citation
 
 If you use ggmuller then please ensure your citation includes DOI:10.5281/zenodo.240589.

@@ -322,7 +322,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
     collapse.singles(edges)
     edges <- edges$edge
   }
-  na.omit(edges) # remove any rows containing NA
+  edges <- na.omit(edges) # remove any rows containing NA
   colnames(edges) <- c("Parent", "Identity")
   if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
   if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]

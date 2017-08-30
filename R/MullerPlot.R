@@ -335,7 +335,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   
   # optionally replace subpopulations of size zero (at generations > 0)
   # with a very small number for smoother plotting of start points:
-  small_val <- 1E-9 * min(filter(Muller_df2, Population > 0)$Population)
+  small_val <- 1E-9 * min(filter(pop_df, Population > 0)$Population)
   if(smooth_start_points) pop_df <-  pop_df %>% mutate(Population = replace(Population, Population == 0 & Generation > 0, small_val))
   
   # construct a dataframe with "Age" of each genotype:

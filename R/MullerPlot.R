@@ -278,6 +278,7 @@ add_start_points <- function(pop_df) {
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
 #' @param threshold Numeric threshold; genotypes that never become more abundant than this threshold are omitted
 #' @param add_zeroes Logical whether to include rows with Population = 0
+#' @param smooth_start_points Logical whether to replace subpopulations of size zero (at generations > 0) with a very small number for smoother plotting of start points
 #'
 #' @return A dataframe that can be used as input in Muller_plot.
 #'
@@ -308,8 +309,11 @@ add_start_points <- function(pop_df) {
 #'
 #' @export
 #' @import dplyr
-get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
+#' @importFrom stats na.omit
+get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smooth_start_points = FALSE) {
   Population <- NULL # avoid check() note
+  Generation <- NULL # avoid check() note
+  example_pop_df <- NULL # avoid check() note
   
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
@@ -318,12 +322,17 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0) {
     collapse.singles(edges)
     edges <- edges$edge
   }
+  na.omit(edges) # remove any rows containing NA
   colnames(edges) <- c("Parent", "Identity")
   if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
   if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
   
   # add rows to pop_df to ensure genotype starting points are plotted correctly:
   pop_df <- add_start_points(pop_df)
+  
+  # optionally replace subpopulations of size zero (at generations > 0)
+  # with a very small number for smoother plotting of start points:
+  if(smooth_start_points) pop_df <-  pop_df %>% mutate(Population = replace(Population, Population == 0 & Generation > 0, 1E-9 * max(example_pop_df$Population)))
   
   # construct a dataframe with "Age" of each genotype:
   pop_df <- arrange_(pop_df, ~-Population)

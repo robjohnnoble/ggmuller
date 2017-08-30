@@ -4,7 +4,8 @@
 \alias{get_Muller_df}
 \title{Create a data frame from which to create a Muller plot}
 \usage{
-get_Muller_df(edges, pop_df, add_zeroes = FALSE, threshold = 0)
+get_Muller_df(edges, pop_df, add_zeroes = FALSE, threshold = 0,
+  smooth_start_points = FALSE)
 }
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, or tree of class "phylo"}
@@ -14,6 +15,8 @@ get_Muller_df(edges, pop_df, add_zeroes = FALSE, threshold = 0)
 \item{add_zeroes}{Logical whether to include rows with Population = 0}
 
 \item{threshold}{Numeric threshold; genotypes that never become more abundant than this threshold are omitted}
+
+\item{smooth_start_points}{Logical whether to replace subpopulations of size zero (at generations > 0) with a very small number for smoother plotting of start points}
 }
 \value{
 A dataframe that can be used as input in Muller_plot.

@@ -181,8 +181,14 @@ reorder_by_vector <- function(df, vector) {
   Identity <- NULL # avoid check() note
   
   # add unique id column to the vector:
-  vector <- group_by(as.data.frame(vector), vector) %>% 
-    mutate(Unique_id = c(as.character(vector[1]), paste0(vector[1], "a")))
+  dup <- duplicated(vector)
+  vector <- as.data.frame(vector)
+  vector$count <- 1:nrow(vector)
+  B <- data.frame(Unique_id = apply(vector, 1, function(x)
+    if(dup[as.numeric(x["count"])]) paste0(x["vector"], "a") 
+    else x["vector"]))
+  B <- data.frame(lapply(B, as.character), stringsAsFactors=FALSE)
+  vector <- cbind(vector[-ncol(vector)], B)
   
   # useful parameters:
   gens <- unique(df$Generation) # list of unique time points
@@ -316,7 +322,6 @@ add_start_points <- function(pop_df) {
 get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smooth_start_points = FALSE) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
-  example_pop_df <- NULL # avoid check() note
   
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 

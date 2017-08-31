@@ -422,11 +422,12 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @import ggplot2
 Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE) {
   if(is.na(palette[1])) {
-    long_palette <- c("#89C5DA", "#DA5724", "#74D944", "#CE50CA", "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", 
-                    "#673770", "#D3D93E", "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
-                    "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", "#5E738F", "#D1A33D", 
-                    "#8A7C64", "#599861")
-    palette <- c("black", rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette))))
+    long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
+                    "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
+                    "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
+                    "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
+                    "#5E738F", "#D1A33D")
+    palette <- rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette)))
   }
   if(is.na(colour_by)) {
     colour_by <- "Identity"

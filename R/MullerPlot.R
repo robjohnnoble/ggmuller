@@ -283,10 +283,10 @@ add_start_points <- function(pop_df) {
 #' @param add_zeroes Logical whether to include rows with Population = 0
 #' @param smooth_start_points Logical whether to replace subpopulations of size zero (at generations > 0) with a very small number for smoother plotting of start points
 #'
-#' @return A dataframe that can be used as input in Muller_plot.
+#' @return A dataframe that can be used as input in Muller_plot and Muller_pop_plot.
 #'
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
-#' @seealso \code{\link{Muller_plot}}
+#' @seealso \code{\link{Muller_plot}} \code{\link{Muller_pop_plot}}
 #'
 #' @examples
 #' # by default, all genotypes are included, 
@@ -412,7 +412,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @return None
 #' 
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
-#' @seealso \code{\link{get_Muller_df}}
+#' @seealso \code{\link{get_Muller_df}} \code{\link{Muller_pop_plot}}
 #'
 #' @examples
 #' # include all genotypes:
@@ -426,6 +426,8 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @import dplyr
 #' @import ggplot2
 Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, pop_plot = FALSE) {
+  if(!pop_plot & "___special_empty" %in% Muller_df$Identity) warning("Dataframe is set up for Muller_pop_plot. Use Muller_pop_plot to plot populations rather than frequencies.")
+  
   if(is.na(palette[1])) {
     long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
                     "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
@@ -456,4 +458,106 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
   if(!pop_plot) print(the_plot)
   # different y axis if plotting populations:
   else print(the_plot + scale_y_continuous(name = "Population", breaks = seq(0, 1, by = 0.25), labels = 1.1 * max_tot / 2 * seq(0, 1, by = 0.25)))
+}
+
+#' Draw a Muller plot of population sizes using ggplot2
+#'
+#' This variation on the Muller plot, which shows variation in population size as well as frequency, is also known as a fish plot.
+#'
+#' @param Muller_df Dataframe created by get_Muller_df
+#' @param colour_by Character containing name of column by which to colour the plot
+#' @param palette List of colours
+#' @param add_legend Logical whether to show legend
+#'
+#' @return None
+#' 
+#' @author Rob Noble, \email{robjohnnoble@gmail.com}
+#' @seealso \code{\link{get_Muller_df}} \code{\link{Muller_plot}}
+#'
+#' @examples
+#' Muller_df <- get_Muller_df(example_edges, example_pop_df)
+#' Muller_pop_plot(Muller_df)
+#'
+#' @export
+#' @import dplyr
+#' @import ggplot2
+Muller_pop_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE) {
+  long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
+                    "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
+                    "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
+                    "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
+                    "#5E738F", "#D1A33D")
+  palette <- c("white", rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette))))
+  
+  # add rows for empty space (unless this has been done already):
+  if(!"___special_empty" %in% Muller_df$Identity) Muller_df <- add_empty_pop(Muller_df)
+  
+  Muller_plot(Muller_df, colour_by = colour_by, palette = palette, add_legend = add_legend, pop_plot = TRUE)
+}
+
+#' Modify a dataframe to enable plotting of populations instead of frequencies
+#' 
+#' The function adds rows at each time point recording the difference between the total population and its maximum value.
+#' Generally there is no need to use this function as Muller_pop_plot calls it automatically.
+#'
+#' @param Muller_df Dataframe created by get_Muller_df
+#'
+#' @return A dataframe that can be used as input in Muller_plot.
+#' 
+#' @author Rob Noble, \email{robjohnnoble@gmail.com}
+#' @seealso \code{\link{get_Muller_df}} \code{\link{Muller_pop_plot}}
+#'
+#' @examples
+#' Muller_df <- get_Muller_df(example_edges, example_pop_df)
+#' Muller_df2 <- add_empty_pop(Muller_df)
+#'
+#' @export
+#' @import dplyr
+#' @import ggplot2
+add_empty_pop <- function(Muller_df) {
+  Population <- NULL # avoid check() note
+  Generation <- NULL # avoid check() note
+  . <- NULL # avoid check() note
+  
+  # get maximum total population:
+  totals <- Muller_df %>% group_by_(~Generation) %>% 
+    summarise_(tot = ~sum(Population)) %>% 
+    ungroup
+  max_tot <- max(totals$tot)
+  
+  # avoid warning when Group_id is a factor:
+  Muller_df$Group_id <- as.character(Muller_df$Group_id)
+  
+  # add a new row at start of each Generation group:
+  Muller_df <- Muller_df %>%
+    group_by_(~Generation) %>%
+    summarise_(Identity = ~"___special_empty", Population = ~-sum(Population) + 1.1 * max_tot) %>%
+    mutate(Frequency = NA, 
+           Group_id = "___special_empty", 
+           Unique_id = paste0("___special_empty_", Generation)) %>% 
+    bind_rows(., Muller_df) %>% 
+    arrange_(~Generation) %>%
+    ungroup()
+  
+  # add a new row at end of each Generation group:
+  Muller_df <- Muller_df %>%
+    group_by_(~Generation) %>%
+    summarise_(Identity = ~"___special_empty", Population = ~first(Population)) %>%
+    mutate(Frequency = NA, 
+           Group_id = "___special_emptya", Unique_id = paste0("___special_emptya_", Generation)) %>% 
+    bind_rows(Muller_df, .) %>% 
+    arrange_(~Generation) %>%
+    ungroup()
+  
+  # recalculate frequencies:
+  Muller_df <- Muller_df %>% group_by_(~Generation) %>% 
+    mutate(Frequency = Population / sum(Population)) %>%
+    ungroup()
+  
+  # the following adjusts for ggplot2 v.2.2.0, which (unlike v.2.1.0) stacks areas in order of their factor levels
+  Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(
+    unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)
+  ))
+  
+  return(Muller_df)
 }

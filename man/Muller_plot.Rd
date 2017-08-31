@@ -34,7 +34,7 @@ Muller_plot(Muller_df2)
 
 }
 \seealso{
-\code{\link{get_Muller_df}}
+\code{\link{get_Muller_df}} \code{\link{Muller_pop_plot}}
 }
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}

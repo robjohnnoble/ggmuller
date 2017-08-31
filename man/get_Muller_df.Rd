@@ -19,7 +19,7 @@ get_Muller_df(edges, pop_df, add_zeroes = FALSE, threshold = 0,
 \item{smooth_start_points}{Logical whether to replace subpopulations of size zero (at generations > 0) with a very small number for smoother plotting of start points}
 }
 \value{
-A dataframe that can be used as input in Muller_plot.
+A dataframe that can be used as input in Muller_plot and Muller_pop_plot.
 }
 \description{
 Create a data frame from which to create a Muller plot
@@ -48,7 +48,7 @@ Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 
 
 }
 \seealso{
-\code{\link{Muller_plot}}
+\code{\link{Muller_plot}} \code{\link{Muller_pop_plot}}
 }
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}

@@ -4,7 +4,8 @@
 \alias{Muller_plot}
 \title{Draw a Muller plot of frequencies using ggplot2}
 \usage{
-Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE)
+Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE,
+  pop_plot = FALSE)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}
@@ -14,6 +15,8 @@ Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE)
 \item{palette}{List of colours}
 
 \item{add_legend}{Logical whether to show legend}
+
+\item{pop_plot}{Logical for whether this function is being called from Muller_pop_plot (otherwise should be FALSE)}
 }
 \value{
 None

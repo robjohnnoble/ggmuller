@@ -407,6 +407,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @param colour_by Character containing name of column by which to colour the plot
 #' @param palette List of colours
 #' @param add_legend Logical whether to show legend
+#' @param pop_plot Logical for whether this function is being called from Muller_pop_plot (otherwise should be FALSE)
 #'
 #' @return None
 #' 
@@ -424,7 +425,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @export
 #' @import dplyr
 #' @import ggplot2
-Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE) {
+Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, pop_plot = FALSE) {
   if(is.na(palette[1])) {
     long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
                     "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
@@ -437,10 +438,22 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
     colour_by <- "Identity"
     Muller_df$Identity <- as.factor(Muller_df$Identity)
   }
-  ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = colour_by, colour = colour_by)) + 
+  id_list <- unique(Muller_df$Identity)
+  id_list <- id_list[id_list != "___special_empty"]
+  the_plot <- ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area(size = 0.5) + # add lines to conceal the gaps between areas
-    scale_fill_manual(values = palette, name = colour_by) + 
+    scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
     scale_color_manual(values = palette) + 
     theme(legend.position = ifelse(add_legend, "right", "none")) +
     guides(linetype=FALSE,color=FALSE)
+  
+  # get maximum total population:
+  totals <- Muller_df %>% group_by_(~Generation) %>% 
+    summarise_(tot = ~sum(Population)) %>% 
+    ungroup
+  max_tot <- max(totals$tot)
+  
+  if(!pop_plot) print(the_plot)
+  # different y axis if plotting populations:
+  else print(the_plot + scale_y_continuous(name = "Population", breaks = seq(0, 1, by = 0.25), labels = 1.1 * max_tot / 2 * seq(0, 1, by = 0.25)))
 }

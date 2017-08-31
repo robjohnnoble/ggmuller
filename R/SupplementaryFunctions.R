@@ -151,6 +151,7 @@ adj_matrix_to_tree <- function(edges) {
     edges$Identity <- as.numeric(edges$Identity)
     edges$Parent <- as.numeric(edges$Parent)
   }
+  edges <- filter_(edges, "Parent != Identity") # remove any row that connects a node to itself
   edges <- branch_singles(edges) # add branches of length zero to get rid of single nodes
   depth <- 0
   next_rank <- vector()

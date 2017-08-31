@@ -2,7 +2,7 @@
 % Please edit documentation in R/MullerPlot.R
 \name{Muller_plot}
 \alias{Muller_plot}
-\title{Draw a Muller plot using ggplot2}
+\title{Draw a Muller plot of frequencies using ggplot2}
 \usage{
 Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE)
 }
@@ -19,11 +19,15 @@ Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE)
 None
 }
 \description{
-Draw a Muller plot using ggplot2
+Draw a Muller plot of frequencies using ggplot2
 }
 \examples{
-Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
-Muller_plot(Muller_df)
+# include all genotypes:
+Muller_df1 <- get_Muller_df(example_edges, example_pop_df)
+Muller_plot(Muller_df1)
+# omit genotypes with max frequency < 0.1:
+Muller_df2 <- get_Muller_df(example_edges, example_pop_df, threshold = 0.1)
+Muller_plot(Muller_df2)
 
 }
 \seealso{

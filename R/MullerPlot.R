@@ -401,7 +401,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   return(Muller_df)
 }
 
-#' Draw a Muller plot using ggplot2
+#' Draw a Muller plot of frequencies using ggplot2
 #'
 #' @param Muller_df Dataframe created by get_Muller_df
 #' @param colour_by Character containing name of column by which to colour the plot
@@ -414,9 +414,13 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @seealso \code{\link{get_Muller_df}}
 #'
 #' @examples
-#' Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
-#' Muller_plot(Muller_df)
-#'
+#' # include all genotypes:
+#' Muller_df1 <- get_Muller_df(example_edges, example_pop_df)
+#' Muller_plot(Muller_df1)
+#' # omit genotypes with max frequency < 0.1:
+#' Muller_df2 <- get_Muller_df(example_edges, example_pop_df, threshold = 0.1)
+#' Muller_plot(Muller_df2)
+#' 
 #' @export
 #' @import dplyr
 #' @import ggplot2

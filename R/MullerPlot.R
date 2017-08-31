@@ -122,11 +122,11 @@ find_start_node <- function(edges) {
 #' 
 #' @examples
 #' edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6)
-#' get_path(edges1)
+#' path_vector(edges1)
 #'
 #' @export
 #' @import dplyr
-get_path <- function(edges) {
+path_vector <- function(edges) {
   n <- 1
   path <- find_start_node(edges)
   upped <- FALSE
@@ -162,7 +162,7 @@ get_path <- function(edges) {
 #' @return The reordered dataframe.
 #'
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
-#' @seealso \code{\link{get_path}}
+#' @seealso \code{\link{path_vector}}
 #'
 #' @examples
 #' df <- data.frame(Generation = c(rep(0, 6), rep(1, 6)), 
@@ -171,7 +171,7 @@ get_path <- function(edges) {
 #' require(dplyr)
 #' df <- arrange(df, Generation) # put in chronological order
 #' edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6) # adjacency matrix
-#' path <- get_path(edges1) # path through the adjacency matrix
+#' path <- path_vector(edges1) # path through the adjacency matrix
 #' reorder_by_vector(df, path)
 #'
 #' @export
@@ -373,7 +373,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   Muller_df <- arrange_(Muller_df, ~Generation)
   
   # get the path:
-  path <- get_path(edges)
+  path <- path_vector(edges)
   path <- rev(path) # apparently, the convention for Muller plots to have earliest-arriving genotypes plotted nearest the top
   
   # replace each Age in the path with corresponding genotype name:

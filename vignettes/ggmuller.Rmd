@@ -39,8 +39,6 @@ Muller_df <- get_Muller_df(example_edges, example_pop_df)
 Muller_pop_plot(Muller_df)
 ```
 
-In the population plot, the white space is background, and as before the common ancestor is olive brown (in the default palette).
-
 That’s all you need for basic usage. The rest of this post introduces some additional features and options.
 
 ## A more detailed example
@@ -105,7 +103,7 @@ Since simulations can result in very large sets of genotypes, many of which neve
 
 If your genotype populations abruptly increase from zero to relatively large sizes then you  might see blank segments in the plot. Using `get_Muller_df` with the option `smooth_start_points = TRUE` may improve the plot aesthetics.
 
-You can change the `Muller_plot` or `Muller_pop_plot` axis labels using the options `xlab` and `ylab`.
+You can change the `Muller_plot` or `Muller_pop_plot` axis labels using the options `xlab` and `ylab`. Further plot customisation is possible only by replacing `Muller_plot` or `Muller_pop_plot` with your own ggplot wrapper.
 
 ## Converting between adjacency matrix and phylo representations
 

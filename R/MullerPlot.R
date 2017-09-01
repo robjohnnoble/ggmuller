@@ -433,7 +433,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
 #' @import dplyr
 #' @import ggplot2
 Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = "Generation", ylab = "Frequency", pop_plot = FALSE) {
-  if(!pop_plot & "___special_empty" %in% Muller_df$Identity) warning("Dataframe is set up for Muller_pop_plot. Use Muller_pop_plot to plot populations rather than frequencies.")
+  if(!pop_plot & "___special_empty" %in% Muller_df$Group_id) warning("Dataframe is set up for Muller_pop_plot. Use Muller_pop_plot to plot populations rather than frequencies.")
   
   if(is.na(palette[1])) {
     long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
@@ -452,7 +452,7 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
     geom_area(size = 0.5) + # add lines to conceal the gaps between areas
     scale_fill_manual(values = palette, name = colour_by) + 
     scale_color_manual(values = palette) + 
-    theme(legend.position = ifelse(add_legend, "right", "right")) +
+    theme(legend.position = ifelse(add_legend, "right", "none")) +
     guides(linetype=FALSE,color=FALSE)
   
   # get maximum total population:

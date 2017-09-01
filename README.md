@@ -56,7 +56,7 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 To cite ggmuller in publications please use
 
-    Robert Noble (2017). ggmuller: Create Muller Plots of Evolutionary Dynamics. R package version 0.2.1. https://CRAN.R-project.org/package=ggmuller
+    Robert Noble (2017). ggmuller: Create Muller Plots of Evolutionary Dynamics. R package version 0.2.1. doi:10.5281/zenodo.591304 https://CRAN.R-project.org/package=ggmuller
 
 A BibTeX entry for LaTeX users is
 
@@ -66,6 +66,7 @@ A BibTeX entry for LaTeX users is
     year = {2017},
     note = {R package version 0.2.1},
     url = {https://CRAN.R-project.org/package=ggmuller},
+    doi = 10.5281/zenodo.591304
     }
 
 Please amend the version number as appropriate.

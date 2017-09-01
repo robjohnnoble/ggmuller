@@ -445,12 +445,12 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
   }
   if(is.na(colour_by)) {
     colour_by <- "Identity"
-    Muller_df$Identity <- as.factor(Muller_df$Identity)
+    #Muller_df$Identity <- as.factor(Muller_df$Identity)
   }
   id_list <- unique(Muller_df[Muller_df$Identity != "___special_empty", colour_by])
   the_plot <- ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area(size = 0.5) + # add lines to conceal the gaps between areas
-    scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
+    scale_fill_manual(values = palette, name = colour_by) + 
     scale_color_manual(values = palette) + 
     theme(legend.position = ifelse(add_legend, "right", "right")) +
     guides(linetype=FALSE,color=FALSE)
@@ -496,10 +496,9 @@ Muller_pop_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend 
                     "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
                     "#5E738F", "#D1A33D")
   if(is.na(palette[1])) palette <- c(rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette))))
-  palette <- c("white", palette)
   
   # add rows for empty space (unless this has been done already):
-  if(!"___special_empty" %in% Muller_df$Identity) Muller_df <- add_empty_pop(Muller_df)
+  if(!"___special_empty" %in% Muller_df$Group_id) Muller_df <- add_empty_pop(Muller_df)
   
   Muller_plot(Muller_df, colour_by = colour_by, palette = palette, add_legend = add_legend, pop_plot = TRUE, xlab = xlab, ylab = ylab)
 }
@@ -540,7 +539,7 @@ add_empty_pop <- function(Muller_df) {
   # add a new row at start of each Generation group:
   Muller_df <- Muller_df %>%
     group_by_(~Generation) %>%
-    summarise_(Identity = ~"___special_empty", Population = ~-sum(Population) + 1.1 * max_tot) %>%
+    summarise_(Identity = ~NA, Population = ~-sum(Population) + 1.1 * max_tot) %>%
     mutate(Frequency = NA, 
            Group_id = "___special_empty", 
            Unique_id = paste0("___special_empty_", Generation)) %>% 
@@ -551,7 +550,7 @@ add_empty_pop <- function(Muller_df) {
   # add a new row at end of each Generation group:
   Muller_df <- Muller_df %>%
     group_by_(~Generation) %>%
-    summarise_(Identity = ~"___special_empty", Population = ~first(Population)) %>%
+    summarise_(Identity = ~NA, Population = ~first(Population)) %>%
     mutate(Frequency = NA, 
            Group_id = "___special_emptya", Unique_id = paste0("___special_emptya_", Generation)) %>% 
     bind_rows(Muller_df, .) %>% 

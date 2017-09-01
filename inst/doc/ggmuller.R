@@ -59,7 +59,7 @@ ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_i
 
 ## ------------------------------------------------------------------------
 Muller_df_pop <- add_empty_pop(Muller_df)
-ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
+ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Population", group = "Group_id", fill = "Identity", colour = "Identity")) + 
 	geom_area(size = 0.5) + # add lines to conceal the gaps between areas
 	theme(legend.position = "right") +
 	guides(linetype = FALSE, color = FALSE) + 

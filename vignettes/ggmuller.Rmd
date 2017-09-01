@@ -101,7 +101,7 @@ Muller_plot(Muller_df3, colour_by = "Fitness",
 
 Since simulations can result in very large sets of genotypes, many of which never become abundant, `get_Muller_df` has a threshold option to exclude rarities. By default, the data frame includes only rows with nonzero population; this can be overridden by setting `add_zeroes = TRUE`, in which case all genotypes are represented at every generation (which makes it easier to add new columns, for example).
 
-If your genotype populations abruptly increase from zero to relatively large sizes then you  might see blank segments in the plot. Using `get_Muller_df` with the option `smooth_start_points = TRUE` may improve the plot aesthetics.
+If some of your genotype populations go extinct then you  might see blank segments in the plot. Using `get_Muller_df` with the option `smooth_start_points = TRUE` should remedy this problem.
 
 ## Further customisation with ggplot
 
@@ -119,11 +119,11 @@ ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_i
 	scale_color_manual(values = my_palette)
 ```
 
-You can also use ggplot to produce population plots, but only after using the `add_empty_pop` function to modify the input data:
+You can also use ggplot to produce population plots, but only after using the `add_empty_pop` function to modify the input data.
 
 ```{r}
 Muller_df_pop <- add_empty_pop(Muller_df)
-ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
+ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Population", group = "Group_id", fill = "Identity", colour = "Identity")) + 
 	geom_area(size = 0.5) + # add lines to conceal the gaps between areas
 	theme(legend.position = "right") +
 	guides(linetype = FALSE, color = FALSE) + 

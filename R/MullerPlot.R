@@ -341,7 +341,8 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   # optionally replace subpopulations of size zero (at generations > 0)
   # with a very small number for smoother plotting of start points:
   small_val <- 1E-9 * min(filter(pop_df, Population > 0)$Population)
-  if(smooth_start_points) pop_df <-  pop_df %>% mutate(Population = replace(Population, Population == 0 & Generation > 0, small_val))
+  min_gen <- min(pop_df$Generation)
+  if(smooth_start_points) pop_df <-  pop_df %>% mutate(Population = replace(Population, Population == 0 & Generation > min_gen, small_val))
   
   # construct a dataframe with "Age" of each genotype:
   pop_df <- arrange_(pop_df, ~-Population)
@@ -360,6 +361,7 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   pop_df <- pop_df %>% group_by_(~Generation) %>% 
     mutate(Frequency = (Population / sum(Population)) / 2) %>%
     ungroup()
+  pop_df$Population <- pop_df$Population / 2 # because of the duplication
   pop_df$Frequency[is.nan(pop_df$Frequency)] <- 0
   
   # replace each genotype name in adjacency matrix with corresponding Age:
@@ -443,27 +445,17 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
                     "#5E738F", "#D1A33D")
     palette <- rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette)))
   }
-  if(is.na(colour_by)) {
-    colour_by <- "Identity"
-    #Muller_df$Identity <- as.factor(Muller_df$Identity)
-  }
-  id_list <- unique(Muller_df[Muller_df$Identity != "___special_empty", colour_by])
-  the_plot <- ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = colour_by, colour = colour_by)) + 
+  if(is.na(colour_by)) colour_by <- "Identity"
+  y_factor <- ifelse(pop_plot, "Population", "Frequency")
+  
+  ggplot(Muller_df, aes_string(x = "Generation", y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area(size = 0.5) + # add lines to conceal the gaps between areas
     scale_fill_manual(values = palette, name = colour_by) + 
     scale_color_manual(values = palette) + 
     theme(legend.position = ifelse(add_legend, "right", "none")) +
-    guides(linetype=FALSE,color=FALSE)
-  
-  # get maximum total population:
-  totals <- Muller_df %>% group_by_(~Generation) %>% 
-    summarise_(tot = ~sum(Population)) %>% 
-    ungroup
-  max_tot <- max(totals$tot)
-  
-  if(!pop_plot) print(the_plot + scale_x_continuous(name = xlab) + scale_y_continuous(name = ylab))
-  # different y axis if plotting populations:
-  else print(the_plot + scale_x_continuous(name = xlab) + scale_y_continuous(name = ylab, breaks = seq(0, 1, by = 0.25), labels = 1.1 * max_tot / 2 * seq(0, 1, by = 0.25)))
+    guides(linetype=FALSE,color=FALSE) + 
+    scale_x_continuous(name = xlab) + 
+    scale_y_continuous(name = ylab)
 }
 
 #' Draw a Muller plot of population sizes using ggplot2
@@ -539,7 +531,7 @@ add_empty_pop <- function(Muller_df) {
   # add a new row at start of each Generation group:
   Muller_df <- Muller_df %>%
     group_by_(~Generation) %>%
-    summarise_(Identity = ~NA, Population = ~-sum(Population) + 1.1 * max_tot) %>%
+    summarise_(Identity = ~NA, Population = ~-sum(Population)/2 + 1.1 * max_tot/2) %>%
     mutate(Frequency = NA, 
            Group_id = "___special_empty", 
            Unique_id = paste0("___special_empty_", Generation)) %>% 

@@ -7,6 +7,7 @@ Create Muller Plots of Evolutionary Dynamics
 
 To install the [CRAN version](https://cran.r-project.org/web/packages/ggmuller/index.html):
 ``` r
+install(ggmuller)
 library(ggmuller)
 ```
 

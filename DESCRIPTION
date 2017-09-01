@@ -10,7 +10,8 @@ Description: Create plots that combine a phylogeny and frequency dynamics.
 Depends:
     R (>= 3.2.0)
 Imports: dplyr, ggplot2, ape
-Suggests: RColorBrewer
+Suggests: RColorBrewer, knitr, rmarkdown
+VignetteBuilder: knitr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

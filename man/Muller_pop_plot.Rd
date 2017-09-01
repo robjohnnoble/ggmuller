@@ -5,7 +5,7 @@
 \title{Draw a Muller plot of population sizes using ggplot2}
 \usage{
 Muller_pop_plot(Muller_df, colour_by = NA, palette = NA,
-  add_legend = FALSE)
+  add_legend = FALSE, xlab = "Generation", ylab = "Population")
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}
@@ -15,6 +15,10 @@ Muller_pop_plot(Muller_df, colour_by = NA, palette = NA,
 \item{palette}{List of colours}
 
 \item{add_legend}{Logical whether to show legend}
+
+\item{xlab}{Label of x axis}
+
+\item{ylab}{Label of y axis}
 }
 \value{
 None

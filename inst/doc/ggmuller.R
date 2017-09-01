@@ -36,15 +36,36 @@ pop3 <- data.frame(Generation = rep(gens, 9),
 Muller_df3 <- get_Muller_df(edges3, pop3)
 
 ## ------------------------------------------------------------------------
-Muller_plot(Muller_df3, add_legend = TRUE)
+Muller_plot(Muller_df3, add_legend = TRUE, xlab = "Time", ylab = "Proportion")
 
 ## ------------------------------------------------------------------------
 library(RColorBrewer)
 num_cols <- length(unique(Muller_df3$Fitness)) + 1
 Muller_df3$Fitness <- as.factor(Muller_df3$Fitness)
-plot3a <- Muller_plot(Muller_df3, colour_by = "Fitness", 
+Muller_plot(Muller_df3, colour_by = "Fitness", 
  palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
- add_legend = TRUE)
+ add_legend = TRUE, xlab = "Time", ylab = "Proportion")
+
+## ------------------------------------------------------------------------
+library(ggplot2)
+my_palette <- c("grey", "red", "magenta", "orange", "yellow", "blue", "darkcyan")
+ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
+	geom_area(size = 0.5) + # add lines to conceal the gaps between areas
+	theme(legend.position = "right") +
+	guides(linetype = FALSE, color = FALSE) + 
+	scale_y_continuous(labels = 25 * (0:4), name = "Percentage") +
+	scale_fill_manual(name = "Identity", values = my_palette) +
+	scale_color_manual(values = my_palette)
+
+## ------------------------------------------------------------------------
+Muller_df_pop <- add_empty_pop(Muller_df)
+ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
+	geom_area(size = 0.5) + # add lines to conceal the gaps between areas
+	theme(legend.position = "right") +
+	guides(linetype = FALSE, color = FALSE) + 
+	scale_fill_manual(name = "Identity", values = my_palette) +
+	scale_color_manual(values = my_palette) +
+	theme_classic()
 
 ## ------------------------------------------------------------------------
 tree <- adj_matrix_to_tree(edges3)

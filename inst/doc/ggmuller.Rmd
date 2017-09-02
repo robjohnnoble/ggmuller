@@ -39,7 +39,7 @@ Muller_df <- get_Muller_df(example_edges, example_pop_df)
 Muller_pop_plot(Muller_df)
 ```
 
-That’s all you need for basic usage. The rest of this post introduces some additional features and options.
+That’s all you need for basic usage. The rest of this tutorial introduces some additional features and options.
 
 ## A more detailed example
 
@@ -124,13 +124,14 @@ You can also use ggplot to produce population plots, but only after using the `a
 
 ```{r}
 Muller_df_pop <- add_empty_pop(Muller_df)
-ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Population", group = "Group_id", fill = "Identity", colour = "Identity")) + 
-	geom_area() + 
-	theme(legend.position = "right") +
-	guides(linetype = FALSE, color = FALSE) + 
-	scale_fill_manual(name = "Identity", values = my_palette) +
-	scale_color_manual(values = my_palette) +
-	theme_classic()
+id_list <- sort(unique(Muller_df_pop$Identity)) # list of legend entries, omitting NA
+ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
+  geom_area() + # add lines to conceal the gaps between areas
+  theme(legend.position = "right") +
+  guides(linetype = FALSE, color = FALSE) + 
+  scale_fill_manual(name = "Identity", values = my_palette, breaks = id_list) +
+  scale_color_manual(values = my_palette) +
+  theme_classic()
 ```
 
 ## Converting between adjacency matrix and phylo representations

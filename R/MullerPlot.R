@@ -430,10 +430,11 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
   }
   if(is.na(colour_by)) colour_by <- "Identity"
   y_factor <- ifelse(pop_plot, "Population", "Frequency")
+  id_list <- sort(unique(Muller_df$Identity))
   
   ggplot(Muller_df, aes_string(x = "Generation", y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area() + # add lines to conceal the gaps between areas
-    scale_fill_manual(values = palette, name = colour_by) + 
+    scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
     scale_color_manual(values = palette) + 
     theme(legend.position = ifelse(add_legend, "right", "none")) +
     guides(linetype=FALSE,color=FALSE) + 
@@ -465,12 +466,6 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
 #' @import dplyr
 #' @import ggplot2
 Muller_pop_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = "Generation", ylab = "Population") {
-  long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
-                    "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
-                    "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
-                    "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
-                    "#5E738F", "#D1A33D")
-  if(is.na(palette[1])) palette <- c(rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette))))
   
   # add rows for empty space (unless this has been done already):
   if(!"___special_empty" %in% Muller_df$Group_id) Muller_df <- add_empty_pop(Muller_df)

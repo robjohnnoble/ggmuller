@@ -39,7 +39,7 @@ Muller_df <- get_Muller_df(example_edges, example_pop_df)
 Muller_pop_plot(Muller_df)
 ```
 
-That’s all you need for basic usage. The rest of this post introduces some additional features and options.
+That’s all you need for basic usage. The rest of this tutorial introduces some additional features and options.
 
 ## A more detailed example
 

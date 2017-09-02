@@ -246,10 +246,7 @@ add_start_points <- function(pop_df) {
   delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list))))
   
   # set small initial population size:
-  total_pops <- group_by_(pop_df, ~Generation) %>%
-    summarise_(total_pop = ~sum(Population))
-  min_total_pop <- min(total_pops$total_pop)
-  init_size <- 1E-6 * min_total_pop
+  init_size <- 0
   
   # get reference list of generations at which new genotypes appear:
   min_gen <- min(pop_df$Generation)
@@ -286,8 +283,6 @@ add_start_points <- function(pop_df) {
 #' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
 #' @param threshold Numeric threshold; genotypes that never become more abundant than this threshold are omitted
-#' @param add_zeroes Logical whether to include rows with Population = 0
-#' @param smooth_start_points Logical whether to replace subpopulations of size zero (at generations > 0) with a very small number for smoother plotting of start points
 #'
 #' @return A dataframe that can be used as input in Muller_plot and Muller_pop_plot.
 #'
@@ -298,9 +293,6 @@ add_start_points <- function(pop_df) {
 #' # by default, all genotypes are included, 
 #' # but one can choose to omit genotypes with max frequency < threshold:
 #' Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
-#'
-#' # one can also choose to include rows with Population = 0:
-#' Muller_df <- get_Muller_df(example_edges, example_pop_df, add_zeroes = TRUE, threshold = 0.005)
 #'
 #' # the genotype names can be arbitrary character strings instead of numbers:
 #' example_edges_char <- example_edges
@@ -319,7 +311,7 @@ add_start_points <- function(pop_df) {
 #' @export
 #' @import dplyr
 #' @importFrom stats na.omit
-get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smooth_start_points = FALSE) {
+get_Muller_df <- function(edges, pop_df, threshold = 0) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
   
@@ -337,12 +329,6 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   
   # add rows to pop_df to ensure genotype starting points are plotted correctly:
   pop_df <- add_start_points(pop_df)
-  
-  # optionally replace subpopulations of size zero (at generations > 0)
-  # with a very small number for smoother plotting of start points:
-  small_val <- 1E-9 * min(filter(pop_df, Population > 0)$Population)
-  min_gen <- min(pop_df$Generation)
-  if(smooth_start_points) pop_df <-  pop_df %>% mutate(Population = replace(Population, Population == 0 & Generation > min_gen, small_val))
   
   # construct a dataframe with "Age" of each genotype:
   pop_df <- arrange_(pop_df, ~-Population)
@@ -401,9 +387,6 @@ get_Muller_df <- function(edges, pop_df, add_zeroes = FALSE, threshold = 0, smoo
   Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(
     unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)
     ))
-  
-  # optionally remove rows with Population = 0:
-  if(!add_zeroes) Muller_df <- filter_(Muller_df, ~Population > 0)
   
   return(Muller_df)
 }

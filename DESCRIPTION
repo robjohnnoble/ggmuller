@@ -1,6 +1,6 @@
 Package: ggmuller
 Title: Create Muller Plots of Evolutionary Dynamics
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Robert", "Noble", email = "robjohnnoble@gmail.com", role = c("aut", "cre"))
 Description: Create plots that combine a phylogeny and frequency dynamics.
     Phylogenetic input can be a generic adjacency matrix or a tree of class "phylo".

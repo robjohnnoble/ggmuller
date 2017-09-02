@@ -47,6 +47,10 @@ Muller_plot(Muller_df3, colour_by = "Fitness",
  add_legend = TRUE, xlab = "Time", ylab = "Proportion")
 
 ## ------------------------------------------------------------------------
+Muller_df3_censored <- get_Muller_df(edges3, pop3, threshold = 0.1)
+Muller_plot(Muller_df3_censored, add_legend = TRUE)
+
+## ------------------------------------------------------------------------
 library(ggplot2)
 my_palette <- c("grey", "red", "magenta", "orange", "yellow", "blue", "darkcyan")
 ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 

@@ -155,7 +155,7 @@ my_palette &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Muller_df_pop &lt;-<span class="st"> </span><span class="kw">add_empty_pop</span>(Muller_df)
 id_list &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">unique</span>(Muller_df_pop$Identity)) <span class="co"># list of legend entries, omitting NA</span>
 <span class="kw">ggplot</span>(Muller_df_pop, <span class="kw">aes_string</span>(<span class="dt">x =</span> <span class="st">&quot;Generation&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Frequency&quot;</span>, <span class="dt">group =</span> <span class="st">&quot;Group_id&quot;</span>, <span class="dt">fill =</span> <span class="st">&quot;Identity&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;Identity&quot;</span>)) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_area</span>() +<span class="st"> </span><span class="co"># add lines to conceal the gaps between areas</span>
+<span class="st">  </span><span class="kw">geom_area</span>() +
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;right&quot;</span>) +
 <span class="st">  </span><span class="kw">guides</span>(<span class="dt">linetype =</span> <span class="ot">FALSE</span>, <span class="dt">color =</span> <span class="ot">FALSE</span>) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">name =</span> <span class="st">&quot;Identity&quot;</span>, <span class="dt">values =</span> my_palette, <span class="dt">breaks =</span> id_list) +

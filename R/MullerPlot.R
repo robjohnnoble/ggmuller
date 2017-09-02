@@ -430,10 +430,10 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
   }
   if(is.na(colour_by)) colour_by <- "Identity"
   y_factor <- ifelse(pop_plot, "Population", "Frequency")
-  id_list <- sort(unique(Muller_df$Identity))
+  id_list <- sort(unique(Muller_df$Identity)) # list of legend entries, omitting NA
   
   ggplot(Muller_df, aes_string(x = "Generation", y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
-    geom_area() + # add lines to conceal the gaps between areas
+    geom_area() +
     scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
     scale_color_manual(values = palette) + 
     theme(legend.position = ifelse(add_legend, "right", "none")) +

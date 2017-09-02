@@ -65,7 +65,7 @@ ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_i
 Muller_df_pop <- add_empty_pop(Muller_df)
 id_list <- sort(unique(Muller_df_pop$Identity)) # list of legend entries, omitting NA
 ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
-  geom_area() + # add lines to conceal the gaps between areas
+  geom_area() +
   theme(legend.position = "right") +
   guides(linetype = FALSE, color = FALSE) + 
   scale_fill_manual(name = "Identity", values = my_palette, breaks = id_list) +

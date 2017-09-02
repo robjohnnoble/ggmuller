@@ -64,7 +64,7 @@ ggplot(Muller_df, aes_string(x = "Generation", y = "Frequency", group = "Group_i
 ## ------------------------------------------------------------------------
 Muller_df_pop <- add_empty_pop(Muller_df)
 id_list <- sort(unique(Muller_df_pop$Identity)) # list of legend entries, omitting NA
-ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Frequency", group = "Group_id", fill = "Identity", colour = "Identity")) + 
+ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Population", group = "Group_id", fill = "Identity", colour = "Identity")) + 
   geom_area() +
   theme(legend.position = "right") +
   guides(linetype = FALSE, color = FALSE) + 

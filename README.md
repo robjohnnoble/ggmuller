@@ -53,6 +53,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 0.2.1: Correct mistake in calculating population sizes for Muller_pop_plot.
 
+0.2.2: Bug fix for Muller_pop_plot when some subpopulations go extinct.
+
 ### Citation
 
 To cite ggmuller in publications please use

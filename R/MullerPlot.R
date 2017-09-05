@@ -224,8 +224,8 @@ reorder_by_vector <- function(df, vector) {
 #' The function 1) identifies the time points at which new genotypes appear;
 #' 2) copies all the rows of data for these time points; 3) modifies the copied rows by slighlty decreasing
 #' Generation and setting Population of the emerging genotypes to be close to zero;
-#' and then 4) adds the modified rows to the dataframe. This ensures that ggplot doesn't plot blank spaces
-#' where genotypes first emerge.
+#' and then 4) adds the modified rows to the dataframe. This ensures that ggplot plots
+#' genotypes emerging at the points where they are first recorded.
 #'
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
 #'

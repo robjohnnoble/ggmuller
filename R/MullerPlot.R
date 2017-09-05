@@ -279,10 +279,13 @@ add_start_points <- function(pop_df) {
 }
 
 #' Create a data frame from which to create a Muller plot
+#' 
 #'
 #' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
 #' @param threshold Numeric threshold; genotypes that never become more abundant than this threshold are omitted
+#' @param add_zeroes Deprecated (now always TRUE)
+#' @param smooth_start_points Deprecated (now always TRUE)
 #'
 #' @return A dataframe that can be used as input in Muller_plot and Muller_pop_plot.
 #'
@@ -302,7 +305,7 @@ add_start_points <- function(pop_df) {
 #' example_pop_df_char$Identity <- paste0("foo", example_pop_df_char$Identity, "bar")
 #' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
 #'
-#' # the genotype names can also be factors (which is the default for characters in imported data):
+#' # the genotype names can also be factors (which is the default for strings in imported data):
 #' example_edges_char$Identity <- as.factor(example_edges_char$Identity)
 #' example_edges_char$Parent <- as.factor(example_edges_char$Parent)
 #' example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
@@ -311,9 +314,18 @@ add_start_points <- function(pop_df) {
 #' @export
 #' @import dplyr
 #' @importFrom stats na.omit
-get_Muller_df <- function(edges, pop_df, threshold = 0) {
+get_Muller_df <- function(edges, pop_df, threshold = 0, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
+  
+  if (!missing(add_zeroes)) {
+    warning("argument add_zeroes is deprecated (it is now always TRUE).", 
+    call. = FALSE)
+  }
+  if (!missing(smooth_start_points)) {
+    warning("argument smooth_start_points is deprecated (it is now always TRUE).", 
+    call. = FALSE)
+  }
   
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 

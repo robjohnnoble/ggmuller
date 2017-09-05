@@ -4,7 +4,8 @@
 \alias{get_Muller_df}
 \title{Create a data frame from which to create a Muller plot}
 \usage{
-get_Muller_df(edges, pop_df, threshold = 0)
+get_Muller_df(edges, pop_df, threshold = 0, add_zeroes = NA,
+  smooth_start_points = NA)
 }
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, or tree of class "phylo"}
@@ -12,6 +13,10 @@ get_Muller_df(edges, pop_df, threshold = 0)
 \item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
 
 \item{threshold}{Numeric threshold; genotypes that never become more abundant than this threshold are omitted}
+
+\item{add_zeroes}{Deprecated (now always TRUE)}
+
+\item{smooth_start_points}{Deprecated (now always TRUE)}
 }
 \value{
 A dataframe that can be used as input in Muller_plot and Muller_pop_plot.
@@ -32,7 +37,7 @@ example_pop_df_char <- example_pop_df
 example_pop_df_char$Identity <- paste0("foo", example_pop_df_char$Identity, "bar")
 Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
 
-# the genotype names can also be factors (which is the default for characters in imported data):
+# the genotype names can also be factors (which is the default for strings in imported data):
 example_edges_char$Identity <- as.factor(example_edges_char$Identity)
 example_edges_char$Parent <- as.factor(example_edges_char$Parent)
 example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)

@@ -16,8 +16,8 @@ The input Dataframe with additional rows.
 The function 1) identifies the time points at which new genotypes appear;
 2) copies all the rows of data for these time points; 3) modifies the copied rows by slighlty decreasing
 Generation and setting Population of the emerging genotypes to be close to zero;
-and then 4) adds the modified rows to the dataframe. This ensures that ggplot doesn't plot blank spaces
-where genotypes first emerge.
+and then 4) adds the modified rows to the dataframe. This ensures that ggplot plots
+genotypes emerging at the points where they are first recorded.
 }
 \examples{
 pop1 <- data.frame(Generation = rep(1:5, each = 4), Identity = rep(1:4, 5), 

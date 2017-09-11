@@ -7,7 +7,7 @@ Create Muller Plots of Evolutionary Dynamics
 
 ### Installation
 
-To install the [CRAN version](https://cran.r-project.org/web/packages/ggmuller/index.html):
+To install the [CRAN version](https://cran.r-project.org/package=ggmuller):
 ``` r
 install(ggmuller)
 library(ggmuller)
@@ -37,7 +37,7 @@ Muller_plot(Muller_df)
 
 ### How-to guides
 
-The best place to start is the [CRAN vignette](https://cran.r-project.org/web/packages/ggmuller/vignettes/ggmuller.html), which includes an overview of features and some worked examples.
+The best place to start is the [CRAN vignette](https://cran.r-project.org/package=ggmuller/vignettes/ggmuller.html), which includes an overview of features and some worked examples.
 
 An older, slightly different set of instructions can be found in a blog post on [Visualizing evolutionary dynamics with ggmuller](https://thesefewlines.wordpress.com/2016/08/20/how-to-ggmuller/).
 

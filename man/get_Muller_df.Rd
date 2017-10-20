@@ -4,7 +4,7 @@
 \alias{get_Muller_df}
 \title{Create a data frame from which to create a Muller plot}
 \usage{
-get_Muller_df(edges, pop_df, threshold = 0, add_zeroes = NA,
+get_Muller_df(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes = NA,
   smooth_start_points = NA)
 }
 \arguments{
@@ -12,7 +12,9 @@ get_Muller_df(edges, pop_df, threshold = 0, add_zeroes = NA,
 
 \item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
 
-\item{threshold}{Numeric threshold; genotypes that never become more abundant than this threshold are omitted}
+\item{cutoff}{Numeric cutoff; genotypes that never become more abundant than this value are omitted}
+
+\item{threshold}{Depcrecated (use cutoff instead, but note that "threshold" omitted genotypes that never become more abundant than *twice* its value)}
 
 \item{add_zeroes}{Deprecated (now always TRUE)}
 
@@ -26,8 +28,8 @@ Create a data frame from which to create a Muller plot
 }
 \examples{
 # by default, all genotypes are included, 
-# but one can choose to omit genotypes with max frequency < threshold:
-Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
+# but one can choose to omit genotypes with max frequency < cutoff:
+Muller_df <- get_Muller_df(example_edges, example_pop_df, cutoff = 0.01)
 
 # the genotype names can be arbitrary character strings instead of numbers:
 example_edges_char <- example_edges
@@ -35,13 +37,13 @@ example_edges_char$Identity <- paste0("foo", example_edges_char$Identity, "bar")
 example_edges_char$Parent <- paste0("foo", example_edges_char$Parent, "bar")
 example_pop_df_char <- example_pop_df
 example_pop_df_char$Identity <- paste0("foo", example_pop_df_char$Identity, "bar")
-Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.01)
 
 # the genotype names can also be factors (which is the default for strings in imported data):
 example_edges_char$Identity <- as.factor(example_edges_char$Identity)
 example_edges_char$Parent <- as.factor(example_edges_char$Parent)
 example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
-Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.01)
 
 }
 \seealso{

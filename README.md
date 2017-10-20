@@ -43,6 +43,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 ### Version history
 
+0.3: Bug fixes; in particular, the "threshold" option is replaced by "cutoff" (genotypes whose abundance never exceeds "cutoff" are removed, whereas previously genotypes whose abundance never exceeded *twice* "threshold" were removed).
+
 0.2.2: Bug fixes and deprecation of superfluous options.
 
 0.2.1: Correct mistake in calculating population sizes for Muller_pop_plot.
@@ -61,7 +63,7 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 To cite ggmuller in publications please use
 
-    Robert Noble (2017). ggmuller: Create Muller Plots of Evolutionary Dynamics. R package version 0.2.2. doi:10.5281/zenodo.591304 https://CRAN.R-project.org/package=ggmuller
+    Robert Noble (2017). ggmuller: Create Muller Plots of Evolutionary Dynamics. R package version 0.3. doi:10.5281/zenodo.591304 https://CRAN.R-project.org/package=ggmuller
 
 A BibTeX entry for LaTeX users is
 
@@ -69,7 +71,7 @@ A BibTeX entry for LaTeX users is
     title = {ggmuller: Create Muller Plots of Evolutionary Dynamics},
     author = {Robert Noble},
     year = {2017},
-    note = {R package version 0.2.2},
+    note = {R package version 0.3},
     url = {https://CRAN.R-project.org/package=ggmuller},
     doi = 10.5281/zenodo.591304
     }

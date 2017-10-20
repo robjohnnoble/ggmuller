@@ -283,7 +283,8 @@ add_start_points <- function(pop_df) {
 #'
 #' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
-#' @param threshold Numeric threshold; genotypes that never become more abundant than this threshold are omitted
+#' @param cutoff Numeric cutoff; genotypes that never become more abundant than this value are omitted
+#' @param threshold Depcrecated (use cutoff instead, but note that "threshold" omitted genotypes that never become more abundant than *twice* its value)
 #' @param add_zeroes Deprecated (now always TRUE)
 #' @param smooth_start_points Deprecated (now always TRUE)
 #'
@@ -294,8 +295,8 @@ add_start_points <- function(pop_df) {
 #'
 #' @examples
 #' # by default, all genotypes are included, 
-#' # but one can choose to omit genotypes with max frequency < threshold:
-#' Muller_df <- get_Muller_df(example_edges, example_pop_df, threshold = 0.005)
+#' # but one can choose to omit genotypes with max frequency < cutoff:
+#' Muller_df <- get_Muller_df(example_edges, example_pop_df, cutoff = 0.01)
 #'
 #' # the genotype names can be arbitrary character strings instead of numbers:
 #' example_edges_char <- example_edges
@@ -303,18 +304,18 @@ add_start_points <- function(pop_df) {
 #' example_edges_char$Parent <- paste0("foo", example_edges_char$Parent, "bar")
 #' example_pop_df_char <- example_pop_df
 #' example_pop_df_char$Identity <- paste0("foo", example_pop_df_char$Identity, "bar")
-#' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+#' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.01)
 #'
 #' # the genotype names can also be factors (which is the default for strings in imported data):
 #' example_edges_char$Identity <- as.factor(example_edges_char$Identity)
 #' example_edges_char$Parent <- as.factor(example_edges_char$Parent)
 #' example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
-#' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, threshold = 0.005)
+#' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.01)
 #'
 #' @export
 #' @import dplyr
 #' @importFrom stats na.omit
-get_Muller_df <- function(edges, pop_df, threshold = 0, add_zeroes = NA, smooth_start_points = NA) {
+get_Muller_df <- function(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
   
@@ -326,11 +327,16 @@ get_Muller_df <- function(edges, pop_df, threshold = 0, add_zeroes = NA, smooth_
     warning("argument smooth_start_points is deprecated (it is now always TRUE).", 
     call. = FALSE)
   }
+  if (!missing(threshold)) {
+    warning("argument threshold is deprecated (use cutoff instead, noting that genotypes whose abundance never exceeds the cutoff value are removed, whereas previously genotypes whose abundance never exceeded *twice* the threshold value were removed).", 
+            call. = FALSE)
+    if (missing(cutoff)) cutoff <- threshold * 2
+  }
   
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
     stop("colnames(pop_df) must contain Generation, Identity and Population")
-  if(class(edges) == "phylo") {
+  if("phylo" %in% class(edges)) {
     collapse.singles(edges)
     edges <- edges$edge
   }
@@ -388,9 +394,9 @@ get_Muller_df <- function(edges, pop_df, threshold = 0, add_zeroes = NA, smooth_
   Muller_df <- reorder_by_vector(Muller_df, path)
   
   # optionally remove rare genotypes, and recalculate frequencies:
-  if(threshold > 0) {
+  if(cutoff > 0) {
     Muller_df <- Muller_df %>% group_by_(~Identity) %>% 
-      filter_(~max(Frequency) >= threshold)
+      filter_(~max(Frequency) >= cutoff / 2)
     Muller_df <- Muller_df %>% group_by_(~Generation) %>% 
       mutate(Frequency = Population / sum(Population)) %>% 
       ungroup()
@@ -423,7 +429,7 @@ get_Muller_df <- function(edges, pop_df, threshold = 0, add_zeroes = NA, smooth_
 #' Muller_df1 <- get_Muller_df(example_edges, example_pop_df)
 #' Muller_plot(Muller_df1)
 #' # omit genotypes with max frequency < 0.1:
-#' Muller_df2 <- get_Muller_df(example_edges, example_pop_df, threshold = 0.1)
+#' Muller_df2 <- get_Muller_df(example_edges, example_pop_df, cutoff = 0.2)
 #' Muller_plot(Muller_df2)
 #' 
 #' @export

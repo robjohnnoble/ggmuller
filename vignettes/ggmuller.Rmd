@@ -97,10 +97,10 @@ Muller_plot(Muller_df3, colour_by = "Fitness",
  add_legend = TRUE, xlab = "Time", ylab = "Proportion")
 ```
 
-Since simulations can result in very large sets of genotypes, many of which never become abundant, `get_Muller_df` has a threshold option to exclude rarities:
+Since simulations can result in very large sets of genotypes, many of which never become abundant, `get_Muller_df` has a cutoff option to exclude rarities:
 
 ```{r}
-Muller_df3_censored <- get_Muller_df(edges3, pop3, threshold = 0.1)
+Muller_df3_censored <- get_Muller_df(edges3, pop3, cutoff = 0.2)
 Muller_plot(Muller_df3_censored, add_legend = TRUE)
 ```
 

@@ -256,6 +256,9 @@ add_start_points <- function(pop_df) {
     filter_(~Generation > min_gen) %>%
     ungroup()
   
+  # if all genotypes appear at the first time point then don't make any changes:
+  if(dim(first_gens)[1] == 0) return(pop_df)
+  
   # copy all rows for generations at which new genotypes appear:
   gens_list <- unique(first_gens$Generation)
   new_rows <- filter_(pop_df, ~Generation %in% gens_list)

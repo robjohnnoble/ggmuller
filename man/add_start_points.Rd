@@ -4,25 +4,38 @@
 \alias{add_start_points}
 \title{Add rows to a population dataframe to ensure genotype starting points are plotted correctly}
 \usage{
-add_start_points(pop_df)
+add_start_points(pop_df, start_positions = 0.5)
 }
 \arguments{
 \item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
+
+\item{start_positions}{Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)}
 }
 \value{
 The input Dataframe with additional rows.
 }
 \description{
-The function 1) identifies the time points at which new genotypes appear;
-2) copies all the rows of data for these time points; 3) modifies the copied rows by slighlty decreasing
+The function 1) identifies when genotypes first have non-zero populations;
+2) copies all the rows of data for these time points; 3) modifies the copied rows by decreasing
 Generation and setting Population of the emerging genotypes to be close to zero;
 and then 4) adds the modified rows to the dataframe. This ensures that ggplot plots
-genotypes emerging at the points where they are first recorded.
+genotypes arising at the correct time points.
+}
+\details{
+By default, the function assumes that each genotype arose half way between the latest time at which 
+its population is zero and the earliest time at which its population is greater than zero. You can 
+override this assumption using the start_positions parameter. If start_positions = 0 (respetively 1) 
+then each genotype is assumed to have arisen at the earliest (respectively latest) time compatible with the data. 
+Intermediate values are also permitted.
 }
 \examples{
 pop1 <- data.frame(Generation = rep(1:5, each = 4), Identity = rep(1:4, 5), 
                    Population = c(1,0,0,0,1,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1))
 add_start_points(pop1)
+
+# to see the effect of changing start_positions, compare the Generation columns:
+add_start_points(pop1, 0)
+add_start_points(pop1, 1)
 
 }
 \author{

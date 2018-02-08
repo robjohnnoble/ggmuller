@@ -221,13 +221,22 @@ reorder_by_vector <- function(df, vector) {
 
 #' Add rows to a population dataframe to ensure genotype starting points are plotted correctly
 #' 
-#' The function 1) identifies the time points at which new genotypes appear;
-#' 2) copies all the rows of data for these time points; 3) modifies the copied rows by slighlty decreasing
+#' 
+#' The function 1) identifies when genotypes first have non-zero populations;
+#' 2) copies all the rows of data for these time points; 3) modifies the copied rows by decreasing
 #' Generation and setting Population of the emerging genotypes to be close to zero;
 #' and then 4) adds the modified rows to the dataframe. This ensures that ggplot plots
-#' genotypes emerging at the points where they are first recorded.
+#' genotypes arising at the correct time points.
+#' 
+#' By default, the function assumes that each genotype arose half way between the latest time at which 
+#' its population is zero and the earliest time at which its population is greater than zero. You can 
+#' override this assumption using the start_positions parameter. If start_positions = 0 (respetively 1) 
+#' then each genotype is assumed to have arisen at the earliest (respectively latest) time compatible with the data. 
+#' Intermediate values are also permitted.
+#' 
 #'
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
+#' @param start_positions Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)
 #'
 #' @return The input Dataframe with additional rows.
 #'
@@ -237,46 +246,60 @@ reorder_by_vector <- function(df, vector) {
 #' pop1 <- data.frame(Generation = rep(1:5, each = 4), Identity = rep(1:4, 5), 
 #'                    Population = c(1,0,0,0,1,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1))
 #' add_start_points(pop1)
+#' 
+#' # to see the effect of changing start_positions, compare the Generation columns:
+#' add_start_points(pop1, 0)
+#' add_start_points(pop1, 1)
 #'
 #' @export
 #' @import dplyr
-add_start_points <- function(pop_df) {
+add_start_points <- function(pop_df, start_positions = 0.5) {
   # set small time interval:
   all_gens_list <- unique(pop_df$Generation)
   delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list))))
-  
+  start_positions <- max(start_positions, delta)
+  start_positions <- min(start_positions, 1 - delta)
+    
   # set small initial population size:
   init_size <- 0
   
   # get reference list of generations at which new genotypes appear:
   min_gen <- min(pop_df$Generation)
   first_gens <- group_by_(pop_df, ~Identity) %>%
-    filter_(~Population > 0) %>%
-    summarise_(Generation = ~min(Generation)) %>%
-    filter_(~Generation > min_gen) %>%
+    filter_(~max(Population) > 0) %>% 
+    summarise_(start_time = ~min(Generation[which(Population > 0)]), 
+               previous_time = ~lag(Generation)[min(which(Population > 0))]) %>%
+    filter_(~start_time > min_gen) %>%
     ungroup()
   
   # if all genotypes appear at the first time point then don't make any changes:
   if(dim(first_gens)[1] == 0) return(pop_df)
   
+  # function to get the generation previous to a specified generation:
+  lag_gens <- function(x) {
+    ans <- lag(all_gens_list)[which(all_gens_list == x)]
+    if(is.na(ans)) return(0)
+    return(ans)
+  }
+  
   # copy all rows for generations at which new genotypes appear:
-  gens_list <- unique(first_gens$Generation)
+  gens_list <- unique(first_gens$start_time)
   new_rows <- filter_(pop_df, ~Generation %in% gens_list)
   # adjust generations of copied rows:
-  new_rows$Generation <- new_rows$Generation - delta
+  new_rows$Generation <- new_rows$Generation - start_positions * (new_rows$Generation - sapply(new_rows$Generation, lag_gens))
   # add the copied rows to the dataframe:
   pop_df <- bind_rows(pop_df, new_rows) %>%
     arrange_(~Generation, ~Identity)
   
   # adjust generations in reference list:
-  first_gens$Generation <- first_gens$Generation - delta
+  first_gens$Generation <- first_gens$start_time - start_positions * (first_gens$start_time - sapply(first_gens$start_time, lag_gens))
   # set small initial populations in reference list:
   first_gens$Population2 <- init_size
   
   # replace initial populations in the dataframe with values from reference list:
   pop_df <- merge(pop_df, first_gens, all.x = TRUE)
   pop_df$Population <- ifelse(is.na(pop_df$Population2), pop_df$Population, pop_df$Population2)
-  pop_df <- pop_df[, names(pop_df) != "Population2"]
+  pop_df <- pop_df[, !(names(pop_df) %in% c("Population2", "start_time", "previous_time"))]
   
   return(pop_df)
 }
@@ -287,6 +310,7 @@ add_start_points <- function(pop_df) {
 #' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
 #' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
 #' @param cutoff Numeric cutoff; genotypes that never become more abundant than this value are omitted
+#' @param start_positions Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)
 #' @param threshold Depcrecated (use cutoff instead, but note that "threshold" omitted genotypes that never become more abundant than *twice* its value)
 #' @param add_zeroes Deprecated (now always TRUE)
 #' @param smooth_start_points Deprecated (now always TRUE)
@@ -315,10 +339,23 @@ add_start_points <- function(pop_df) {
 #' example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
 #' Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.01)
 #'
+#' # to see the effect of changing start_positions, compare these two plots:
+#' edges1 <- data.frame(Parent = c(1,2,1), Identity = 2:4)
+#' pop1 <- data.frame(Generation = rep(1:4, each = 4), 
+#'                     Identity = rep(1:4, times = 4),
+#'                     Population = c(1, 0, 0, 0, 
+#'                                    2, 2, 0, 0, 
+#'                                    4, 8, 4, 0, 
+#'                                    8, 32, 32, 16))
+#' df0 <- get_Muller_df(edges1, pop1, start_positions = 0)
+#' df1 <- get_Muller_df(edges1, pop1, start_positions = 1)
+#' Muller_plot(df0)
+#' Muller_plot(df1)
+#'
 #' @export
 #' @import dplyr
 #' @importFrom stats na.omit
-get_Muller_df <- function(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
+get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
   
@@ -331,7 +368,8 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes 
     call. = FALSE)
   }
   if (!missing(threshold)) {
-    warning("argument threshold is deprecated (use cutoff instead, noting that genotypes whose abundance never exceeds the cutoff value are removed, whereas previously genotypes whose abundance never exceeded *twice* the threshold value were removed).", 
+    warning("argument threshold is deprecated (use cutoff instead, noting that genotypes whose abundance never exceeds the cutoff value are removed, 
+            whereas previously genotypes whose abundance never exceeded *twice* the threshold value were removed).", 
             call. = FALSE)
     if (missing(cutoff)) cutoff <- threshold * 2
   }
@@ -349,7 +387,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes 
   if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
   
   # add rows to pop_df to ensure genotype starting points are plotted correctly:
-  pop_df <- add_start_points(pop_df)
+  pop_df <- add_start_points(pop_df, start_positions)
   
   # construct a dataframe with "Age" of each genotype:
   pop_df <- arrange_(pop_df, ~-Population)

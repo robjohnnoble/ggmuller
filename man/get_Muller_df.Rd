@@ -4,8 +4,8 @@
 \alias{get_Muller_df}
 \title{Create a data frame from which to create a Muller plot}
 \usage{
-get_Muller_df(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes = NA,
-  smooth_start_points = NA)
+get_Muller_df(edges, pop_df, cutoff = 0, start_positions = 0.5,
+  threshold = NA, add_zeroes = NA, smooth_start_points = NA)
 }
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, or tree of class "phylo"}
@@ -13,6 +13,8 @@ get_Muller_df(edges, pop_df, cutoff = 0, threshold = NA, add_zeroes = NA,
 \item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
 
 \item{cutoff}{Numeric cutoff; genotypes that never become more abundant than this value are omitted}
+
+\item{start_positions}{Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)}
 
 \item{threshold}{Depcrecated (use cutoff instead, but note that "threshold" omitted genotypes that never become more abundant than *twice* its value)}
 
@@ -44,6 +46,19 @@ example_edges_char$Identity <- as.factor(example_edges_char$Identity)
 example_edges_char$Parent <- as.factor(example_edges_char$Parent)
 example_pop_df_char$Identity <- as.factor(example_pop_df_char$Identity)
 Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.01)
+
+# to see the effect of changing start_positions, compare these two plots:
+edges1 <- data.frame(Parent = c(1,2,1), Identity = 2:4)
+pop1 <- data.frame(Generation = rep(1:4, each = 4), 
+                    Identity = rep(1:4, times = 4),
+                    Population = c(1, 0, 0, 0, 
+                                   2, 2, 0, 0, 
+                                   4, 8, 4, 0, 
+                                   8, 32, 32, 16))
+df0 <- get_Muller_df(edges1, pop1, start_positions = 0)
+df1 <- get_Muller_df(edges1, pop1, start_positions = 1)
+Muller_plot(df0)
+Muller_plot(df1)
 
 }
 \seealso{

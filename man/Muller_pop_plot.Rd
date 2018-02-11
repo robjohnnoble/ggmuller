@@ -5,7 +5,7 @@
 \title{Draw a Muller plot of population sizes using ggplot2}
 \usage{
 Muller_pop_plot(Muller_df, colour_by = NA, palette = NA,
-  add_legend = FALSE, xlab = "Generation", ylab = "Population")
+  add_legend = FALSE, xlab = NA, ylab = "Population")
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}

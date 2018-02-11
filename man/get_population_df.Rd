@@ -7,7 +7,7 @@
 get_population_df(df)
 }
 \arguments{
-\item{df}{Dataframe inclduing column names "Generation", "Parent" and "Identity"}
+\item{df}{Dataframe inclduing column names "Identity", "Parent", and either "Generation" or "Time"}
 }
 \value{
 A dataframe comprising the population dynamics.

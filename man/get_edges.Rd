@@ -7,9 +7,9 @@
 get_edges(df, generation = NA)
 }
 \arguments{
-\item{df}{Dataframe inclduing column names "Generation", "Parent" and "Identity"}
+\item{df}{Dataframe inclduing column names "Identity", "Parent", and either "Generation" or "Time"}
 
-\item{generation}{Numeric value of Generation at which to determine the adjacency matrix}
+\item{generation}{Numeric value of Generation (or Time) at which to determine the adjacency matrix (defaults to final time point)}
 }
 \value{
 A dataframe comprising the adjacency matrix.

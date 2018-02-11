@@ -12,7 +12,7 @@ Such diagrams are sometimes termed Muller plots in honour of Hermann Joseph Mull
 
 ## How does it work?
 
-The core function is `get_Muller_df`, which constructs a specially ordered data frame from which we can draw a stacked area plot. `get_Muller_df` takes two data frames as input: first an adjacency matrix that defines a phylogeny (with columns named “Identity” and “Parent”), and second the populations of each genotype over time (with columns named “Identity”, “Generation” and “Population”). The genotype names in the “Identity” and “Parent” columns can be any words or numbers. You can use a phylo object instead of an adjacency matrix, provided the genotype names in the population data are integers that correspond to the node numbers in the phylo object.
+The core function is `get_Muller_df`, which constructs a specially ordered data frame from which we can draw a stacked area plot. `get_Muller_df` takes two data frames as input: first an adjacency matrix that defines a phylogeny (with columns named “Identity” and “Parent”), and second the populations of each genotype over time (with columns named “Identity”, “Population”, and either “Generation” or “Time”). The genotype names in the “Identity” and “Parent” columns can be any words or numbers. You can use a phylo object instead of an adjacency matrix, provided the genotype names in the population data are integers that correspond to the node numbers in the phylo object.
 
 `get_Muller_df` records a path through the phylogenetic tree. Each genotype appears exactly twice in the path: once before and once after all of the genotype’s descendants. The function then associates each instance of each genotype with half of the genotype’s frequency over time.
 

@@ -7,7 +7,7 @@
 reorder_by_vector(df, vector)
 }
 \arguments{
-\item{df}{Dataframe with column names "Generation", "Parent" and "Identity", in which each Identity appears exactly twice}
+\item{df}{Dataframe with column names "Identity", "Parent", and either "Generation" or "Time", in which each Identity appears exactly twice}
 
 \item{vector}{Vector of Identity values}
 }

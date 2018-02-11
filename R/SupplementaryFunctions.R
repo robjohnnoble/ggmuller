@@ -29,8 +29,8 @@ branch_singles <- function(edges) {
 
 #' Extract an adjacency matrix from a larger data frame
 #'
-#' @param df Dataframe inclduing column names "Generation", "Parent" and "Identity"
-#' @param generation Numeric value of Generation at which to determine the adjacency matrix
+#' @param df Dataframe inclduing column names "Identity", "Parent", and either "Generation" or "Time"
+#' @param generation Numeric value of Generation (or Time) at which to determine the adjacency matrix (defaults to final time point)
 #'
 #' @return A dataframe comprising the adjacency matrix.
 #' 
@@ -58,9 +58,10 @@ branch_singles <- function(edges) {
 #' @export
 #' @import dplyr
 get_edges <- function(df, generation = NA) {
+  if("Time" %in% colnames(df) && !("Generation" %in% colnames(df))) colnames(df)[colnames(df) == "Time"] <- "Generation"
   # check column names:
   if(!("Generation" %in% colnames(df)) | !("Identity" %in% colnames(df)) | !("Parent" %in% colnames(df))) 
-    stop("colnames(df) must contain Generation, Identity and Parent")
+    stop("colnames(df) must contain Generation (or Time), Identity and Parent")
   if(is.na(generation)) generation <- max(df$Generation)
   edges <- filter_(df, ~Generation == generation) %>% select_(~Parent, ~Identity)
   edges <- filter_(edges, "Parent != Identity") # remove any row that connects a node to itself
@@ -69,7 +70,7 @@ get_edges <- function(df, generation = NA) {
 
 #' Extract population data from a larger data frame
 #'
-#' @param df Dataframe inclduing column names "Generation", "Parent" and "Identity"
+#' @param df Dataframe inclduing column names "Identity", "Parent", and either "Generation" or "Time"
 #'
 #' @return A dataframe comprising the population dynamics.
 #'
@@ -98,9 +99,17 @@ get_edges <- function(df, generation = NA) {
 #' @export
 #' @import dplyr
 get_population_df <- function(df) {
+  
+  original_colname <- "Generation"
+  # rename Time column (original name will be restored later):
+  if("Time" %in% colnames(df) && !("Generation" %in% colnames(df))) {
+    colnames(df)[colnames(df) == "Time"] <- "Generation"
+    original_colname <- "Time"
+  }
+  
   # check column names:
   if(!("Generation" %in% colnames(df)) | !("Identity" %in% colnames(df)) | !("Population" %in% colnames(df))) 
-    stop("colnames(df) must contain Generation, Identity and Population")
+    stop("colnames(df) must contain Generation (or Time), Identity and Population")
   
   . <- NULL # avoid check() note
   Population <- NULL # avoid check() note
@@ -116,6 +125,10 @@ get_population_df <- function(df) {
     mutate(Population = ifelse(Population %in% NA, 0, Population))
   cols <- colnames(df)[!(colnames(df) %in% c("Generation", "Identity", "Population"))]
   for(col in cols) res[, col] <- res[res$Generation == max(res$Generation), col]
+  
+  # restore original time column name:
+  colnames(res)[colnames(res) == "Generation"] <- original_colname
+  
   return(res)
 }
 

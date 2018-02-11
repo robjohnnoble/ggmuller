@@ -156,7 +156,7 @@ path_vector <- function(edges) {
 
 #' Reorder a Muller plot dataframe by a vector
 #'
-#' @param df Dataframe with column names "Generation", "Parent" and "Identity", in which each Identity appears exactly twice
+#' @param df Dataframe with column names "Identity", "Parent", and either "Generation" or "Time", in which each Identity appears exactly twice
 #' @param vector Vector of Identity values
 #'
 #' @return The reordered dataframe.
@@ -179,6 +179,13 @@ path_vector <- function(edges) {
 reorder_by_vector <- function(df, vector) {
   Generation <- NULL # avoid check() note
   Identity <- NULL # avoid check() note
+  
+  original_colname <- "Generation"
+  # rename Time column (original name will be restored later):
+  if("Time" %in% colnames(df) && !("Generation" %in% colnames(df))) {
+    colnames(df)[colnames(df) == "Time"] <- "Generation"
+    original_colname <- "Time"
+  }
   
   # add unique id column to the vector:
   dup <- duplicated(vector)
@@ -216,6 +223,9 @@ reorder_by_vector <- function(df, vector) {
   # reorder the dataframe by the vector:
   df <- df[match(vector, df$Unique_id), ]
   
+  # restore original time column name:
+  colnames(df)[colnames(df) == "Generation"] <- original_colname
+  
   return(df)
 }
 
@@ -235,7 +245,7 @@ reorder_by_vector <- function(df, vector) {
 #' Intermediate values are also permitted.
 #' 
 #'
-#' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
+#' @param pop_df Dataframe with column names "Identity", "Population", and either "Generation" or "Time"
 #' @param start_positions Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)
 #'
 #' @return The input Dataframe with additional rows.
@@ -254,6 +264,14 @@ reorder_by_vector <- function(df, vector) {
 #' @export
 #' @import dplyr
 add_start_points <- function(pop_df, start_positions = 0.5) {
+  
+  original_colname <- "Generation"
+  # rename Time column (original name will be restored later):
+  if("Time" %in% colnames(pop_df) && !("Generation" %in% colnames(pop_df))) {
+    colnames(pop_df)[colnames(pop_df) == "Time"] <- "Generation"
+    original_colname <- "Time"
+  }
+  
   # set small time interval:
   all_gens_list <- unique(pop_df$Generation)
   delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list))))
@@ -263,7 +281,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   # set small initial population size:
   init_size <- 0
   
-  # get reference list of generations at which new genotypes appear:
+  # get reference list of generations at which new genotypes appear (and previous generations):
   min_gen <- min(pop_df$Generation)
   first_gens <- group_by_(pop_df, ~Identity) %>%
     filter_(~max(Population) > 0) %>% 
@@ -285,8 +303,11 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   # copy all rows for generations at which new genotypes appear:
   gens_list <- unique(first_gens$start_time)
   new_rows <- filter_(pop_df, ~Generation %in% gens_list)
+  prev_rows <- filter_(pop_df, ~Generation %in% sapply(gens_list, lag_gens))
   # adjust generations of copied rows:
   new_rows$Generation <- new_rows$Generation - start_positions * (new_rows$Generation - sapply(new_rows$Generation, lag_gens))
+  # adjust populations of copied rows:
+  new_rows$Population <- (1 - start_positions) * new_rows$Population + start_positions * prev_rows$Population
   # add the copied rows to the dataframe:
   pop_df <- bind_rows(pop_df, new_rows) %>%
     arrange_(~Generation, ~Identity)
@@ -295,12 +316,15 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   first_gens$Generation <- first_gens$start_time - start_positions * (first_gens$start_time - sapply(first_gens$start_time, lag_gens))
   # set small initial populations in reference list:
   first_gens$Population2 <- init_size
-  
+
   # replace initial populations in the dataframe with values from reference list:
   pop_df <- merge(pop_df, first_gens, all.x = TRUE)
   pop_df$Population <- ifelse(is.na(pop_df$Population2), pop_df$Population, pop_df$Population2)
   pop_df <- pop_df[, !(names(pop_df) %in% c("Population2", "start_time", "previous_time"))]
   
+  # restore original time column name:
+  colnames(pop_df)[colnames(pop_df) == "Generation"] <- original_colname
+
   return(pop_df)
 }
 
@@ -308,7 +332,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
 #' 
 #'
 #' @param edges Dataframe comprising an adjacency matrix, or tree of class "phylo"
-#' @param pop_df Dataframe with column names "Generation", "Identity" and "Population"
+#' @param pop_df Dataframe with column names "Identity", "Population", and either "Generation" or "Time"
 #' @param cutoff Numeric cutoff; genotypes that never become more abundant than this value are omitted
 #' @param start_positions Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)
 #' @param threshold Depcrecated (use cutoff instead, but note that "threshold" omitted genotypes that never become more abundant than *twice* its value)
@@ -341,7 +365,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
 #'
 #' # to see the effect of changing start_positions, compare these two plots:
 #' edges1 <- data.frame(Parent = c(1,2,1), Identity = 2:4)
-#' pop1 <- data.frame(Generation = rep(1:4, each = 4), 
+#' pop1 <- data.frame(Time = rep(1:4, each = 4), 
 #'                     Identity = rep(1:4, times = 4),
 #'                     Population = c(1, 0, 0, 0, 
 #'                                    2, 2, 0, 0, 
@@ -358,6 +382,22 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
 get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
+  
+  original_colname <- "Generation"
+  # rename Time column (original name will be restored later):
+  if("Time" %in% colnames(pop_df) && !("Generation" %in% colnames(pop_df))) {
+    colnames(pop_df)[colnames(pop_df) == "Time"] <- "Generation"
+    original_colname <- "Time"
+  }
+  
+  # add missing population values:
+  if(dim(pop_df)[1] != length(unique(pop_df$Identity)) * length(unique(pop_df$Generation))) {
+    added_rows <- expand.grid(Identity = unique(pop_df$Identity), Generation = unique(pop_df$Generation))
+    pop_df <- merge(added_rows, pop_df, all = TRUE)
+    pop_df[is.na(pop_df$Population), "Population"] <- 0
+    pop_df <- arrange_(pop_df, ~Generation)
+    warning("missing population sizes replaced by zeroes")
+  }
   
   if (!missing(add_zeroes)) {
     warning("argument add_zeroes is deprecated (it is now always TRUE).", 
@@ -376,7 +416,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
-    stop("colnames(pop_df) must contain Generation, Identity and Population")
+    stop("colnames(pop_df) must contain Generation (or Time), Identity and Population")
   if("phylo" %in% class(edges)) {
     collapse.singles(edges)
     edges <- edges$edge
@@ -447,6 +487,9 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
     unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)
     ))
   
+  # restore original time column name:
+  colnames(Muller_df)[colnames(Muller_df) == "Generation"] <- original_colname
+  
   return(Muller_df)
 }
 
@@ -476,7 +519,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
 #' @export
 #' @import dplyr
 #' @import ggplot2
-Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = "Generation", ylab = "Frequency", pop_plot = FALSE) {
+Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE) {
   if(!pop_plot & "___special_empty" %in% Muller_df$Group_id) warning("Dataframe is set up for Muller_pop_plot. Use Muller_pop_plot to plot populations rather than frequencies.")
   
   if(is.na(palette[1])) {
@@ -489,9 +532,12 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
   }
   if(is.na(colour_by)) colour_by <- "Identity"
   y_factor <- ifelse(pop_plot, "Population", "Frequency")
+  if("Time" %in% colnames(Muller_df) && !("Generation" %in% colnames(Muller_df))) x_factor <- "Time"
+  else x_factor <- "Generation"
+  if(is.na(xlab)) xlab <- x_factor
   id_list <- sort(unique(select(Muller_df, colour_by))[[1]]) # list of legend entries, omitting NA
   
-  ggplot(Muller_df, aes_string(x = "Generation", y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
+  ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area() +
     scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
     scale_color_manual(values = palette) + 
@@ -524,7 +570,7 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
 #' @export
 #' @import dplyr
 #' @import ggplot2
-Muller_pop_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = "Generation", ylab = "Population") {
+Muller_pop_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = NA, ylab = "Population") {
   
   # add rows for empty space (unless this has been done already):
   if(!"___special_empty" %in% Muller_df$Group_id) Muller_df <- add_empty_pop(Muller_df)
@@ -555,6 +601,13 @@ add_empty_pop <- function(Muller_df) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
   . <- NULL # avoid check() note
+  
+  original_colname <- "Generation"
+  # rename Time column (original name will be restored later):
+  if("Time" %in% colnames(Muller_df) && !("Generation" %in% colnames(Muller_df))) {
+    colnames(Muller_df)[colnames(Muller_df) == "Time"] <- "Generation"
+    original_colname <- "Time"
+  }
   
   # get maximum total population:
   totals <- Muller_df %>% group_by_(~Generation) %>% 
@@ -595,6 +648,9 @@ add_empty_pop <- function(Muller_df) {
   Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(
     unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)
   ))
+  
+  # restore original time column name:
+  colnames(Muller_df)[colnames(Muller_df) == "Generation"] <- original_colname
   
   return(Muller_df)
 }

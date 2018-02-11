@@ -10,7 +10,7 @@ get_Muller_df(edges, pop_df, cutoff = 0, start_positions = 0.5,
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, or tree of class "phylo"}
 
-\item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
+\item{pop_df}{Dataframe with column names "Identity", "Population", and either "Generation" or "Time"}
 
 \item{cutoff}{Numeric cutoff; genotypes that never become more abundant than this value are omitted}
 
@@ -49,7 +49,7 @@ Muller_df <- get_Muller_df(example_edges_char, example_pop_df_char, cutoff = 0.0
 
 # to see the effect of changing start_positions, compare these two plots:
 edges1 <- data.frame(Parent = c(1,2,1), Identity = 2:4)
-pop1 <- data.frame(Generation = rep(1:4, each = 4), 
+pop1 <- data.frame(Time = rep(1:4, each = 4), 
                     Identity = rep(1:4, times = 4),
                     Population = c(1, 0, 0, 0, 
                                    2, 2, 0, 0, 

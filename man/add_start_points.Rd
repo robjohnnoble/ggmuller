@@ -7,7 +7,7 @@
 add_start_points(pop_df, start_positions = 0.5)
 }
 \arguments{
-\item{pop_df}{Dataframe with column names "Generation", "Identity" and "Population"}
+\item{pop_df}{Dataframe with column names "Identity", "Population", and either "Generation" or "Time"}
 
 \item{start_positions}{Numeric value between 0 and 1 that determines the times at which genotypes are assumed to have arisen (see examples)}
 }

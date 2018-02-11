@@ -43,6 +43,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 ### Version history
 
+0.5: Smoother plots from sparse data; time column can now be called "Time" instead of "Generation"; replace missing population sizes with zeroes.
+
 0.4: Smoother plotting by default when genotypes suddenly grow from zero to large frequencies; new "start_positions" parameter can be used to override this default.
 
 0.3: Bug fixes; in particular, the "threshold" option is replaced by "cutoff" (genotypes whose abundance never exceeds "cutoff" are removed, whereas previously genotypes whose abundance never exceeded *twice* "threshold" were removed).

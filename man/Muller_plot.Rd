@@ -5,7 +5,7 @@
 \title{Draw a Muller plot of frequencies using ggplot2}
 \usage{
 Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE,
-  xlab = "Generation", ylab = "Frequency", pop_plot = FALSE)
+  xlab = NA, ylab = "Frequency", pop_plot = FALSE)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}

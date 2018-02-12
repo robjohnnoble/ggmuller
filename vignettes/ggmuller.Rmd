@@ -49,7 +49,7 @@ Most of the code that follows is to create an appropriate data set. First we mak
 edges3 <- data.frame(Parent = paste0("clone_", 
  LETTERS[c(rep(1:3, each = 2), 2, 5)]), 
  Identity = paste0("clone_", LETTERS[2:9]))
- ```
+```
 
 Next we construct a data frame of genotype populations over time. Here the population data are generated using diverse fitness values:
 
@@ -86,15 +86,10 @@ We create two versions of the plot. The first version is coloured by genotype id
 Muller_plot(Muller_df3, add_legend = TRUE, xlab = "Time", ylab = "Proportion")
 ```
 
-The second version is (using the RColorBrewer package) coloured by fitness, making use of that extra column:
+The second version is coloured by fitness, making use of that extra column:
 
 ```{r}
-library(RColorBrewer)
-num_cols <- length(unique(Muller_df3$Fitness)) + 1
-Muller_df3$Fitness <- as.factor(Muller_df3$Fitness)
-Muller_plot(Muller_df3, colour_by = "Fitness", 
- palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
- add_legend = TRUE, xlab = "Time", ylab = "Proportion")
+Muller_plot(Muller_df3, colour_by = "Fitness", add_legend = TRUE)
 ```
 
 Since simulations can result in very large sets of genotypes, many of which never become abundant, `get_Muller_df` has a cutoff option to exclude rarities:

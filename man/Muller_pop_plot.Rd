@@ -4,7 +4,7 @@
 \alias{Muller_pop_plot}
 \title{Draw a Muller plot of population sizes using ggplot2}
 \usage{
-Muller_pop_plot(Muller_df, colour_by = NA, palette = NA,
+Muller_pop_plot(Muller_df, colour_by = "Identity", palette = NA,
   add_legend = FALSE, xlab = NA, ylab = "Population")
 }
 \arguments{
@@ -12,7 +12,7 @@ Muller_pop_plot(Muller_df, colour_by = NA, palette = NA,
 
 \item{colour_by}{Character containing name of column by which to colour the plot}
 
-\item{palette}{List of colours}
+\item{palette}{Either a brewer palette or a vector of colours (if colour_by is categorical)}
 
 \item{add_legend}{Logical whether to show legend}
 

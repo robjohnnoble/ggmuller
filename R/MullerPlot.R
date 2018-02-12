@@ -497,7 +497,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
 #'
 #' @param Muller_df Dataframe created by get_Muller_df
 #' @param colour_by Character containing name of column by which to colour the plot
-#' @param palette List of colours
+#' @param palette Either a brewer palette or a vector of colours (if colour_by is categorical)
 #' @param add_legend Logical whether to show legend
 #' @param xlab Label of x axis
 #' @param ylab Label of y axis
@@ -515,36 +515,73 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
 #' # omit genotypes with max frequency < 0.1:
 #' Muller_df2 <- get_Muller_df(example_edges, example_pop_df, cutoff = 0.2)
 #' Muller_plot(Muller_df2)
+#' # colour by a continuous variable:
+#' Muller_df1 <- get_Muller_df(example_edges, example_pop_df)
+#' Muller_df1$Val <- as.numeric(Muller_df1$Identity)
+#' Muller_plot(Muller_df1, colour_by = "Val", add_legend = TRUE)
 #' 
 #' @export
 #' @import dplyr
 #' @import ggplot2
-Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE) {
+#' @importFrom grDevices col2rgb
+Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE) {
   if(!pop_plot & "___special_empty" %in% Muller_df$Group_id) warning("Dataframe is set up for Muller_pop_plot. Use Muller_pop_plot to plot populations rather than frequencies.")
   
-  if(is.na(palette[1])) {
-    long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
-                    "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
-                    "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
-                    "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
-                    "#5E738F", "#D1A33D")
-    palette <- rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette)))
-  }
-  if(is.na(colour_by)) colour_by <- "Identity"
   y_factor <- ifelse(pop_plot, "Population", "Frequency")
   if("Time" %in% colnames(Muller_df) && !("Generation" %in% colnames(Muller_df))) x_factor <- "Time"
   else x_factor <- "Generation"
   if(is.na(xlab)) xlab <- x_factor
-  id_list <- sort(unique(select(Muller_df, colour_by))[[1]]) # list of legend entries, omitting NA
+  direction <- 1
+  if(is.na(palette[1])) {
+    if(is.numeric(Muller_df[ , colour_by])) {
+      palette <- "RdBu"
+      direction <- -1
+    }
+    else {
+      long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
+                      "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
+                      "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
+                      "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
+                      "#5E738F", "#D1A33D")
+      palette <- rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette)))
+    }
+  }
+  # test whether palette is a vector of colours; if not then we'll assume it's the name of a predefined palette:
+  palette_named <- !min(sapply(palette, function(X) tryCatch(is.matrix(col2rgb(X)), error = function(e) FALSE)))
   
-  ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
+  if(is.numeric(Muller_df[ , colour_by])) {
+    ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area() +
-    scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
-    scale_color_manual(values = palette) + 
+    scale_fill_distiller(palette = palette, direction = direction, name = colour_by) + 
+    scale_color_distiller(palette = palette, direction = direction) + 
     theme(legend.position = ifelse(add_legend, "right", "none")) +
-    guides(linetype=FALSE,color=FALSE) + 
+    guides(linetype = FALSE, color = FALSE) + 
     scale_x_continuous(name = xlab) + 
     scale_y_continuous(name = ylab)
+  }
+  else {
+    id_list <- sort(unique(select(Muller_df, colour_by))[[1]]) # list of legend entries, omitting NA
+    if(palette_named) {
+        ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
+        geom_area() +
+        scale_fill_brewer(palette = palette, name = colour_by) + 
+        scale_color_brewer(palette = palette) + 
+        theme(legend.position = ifelse(add_legend, "right", "none")) +
+        guides(linetype = FALSE, color = FALSE) + 
+        scale_x_continuous(name = xlab) + 
+        scale_y_continuous(name = ylab)
+    }
+    else {
+      ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
+        geom_area() +
+        scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
+        scale_color_manual(values = palette) + 
+        theme(legend.position = ifelse(add_legend, "right", "none")) +
+        guides(linetype = FALSE, color = FALSE) + 
+        scale_x_continuous(name = xlab) + 
+        scale_y_continuous(name = ylab)
+    }
+  }
 }
 
 #' Draw a Muller plot of population sizes using ggplot2
@@ -553,7 +590,7 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
 #'
 #' @param Muller_df Dataframe created by get_Muller_df
 #' @param colour_by Character containing name of column by which to colour the plot
-#' @param palette List of colours
+#' @param palette Either a brewer palette or a vector of colours (if colour_by is categorical)
 #' @param add_legend Logical whether to show legend
 #' @param xlab Label of x axis
 #' @param ylab Label of y axis
@@ -570,7 +607,7 @@ Muller_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FA
 #' @export
 #' @import dplyr
 #' @import ggplot2
-Muller_pop_plot <- function(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE, xlab = NA, ylab = "Population") {
+Muller_pop_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_legend = FALSE, xlab = NA, ylab = "Population") {
   
   # add rows for empty space (unless this has been done already):
   if(!"___special_empty" %in% Muller_df$Group_id) Muller_df <- add_empty_pop(Muller_df)

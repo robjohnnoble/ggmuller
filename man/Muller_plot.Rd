@@ -4,15 +4,15 @@
 \alias{Muller_plot}
 \title{Draw a Muller plot of frequencies using ggplot2}
 \usage{
-Muller_plot(Muller_df, colour_by = NA, palette = NA, add_legend = FALSE,
-  xlab = NA, ylab = "Frequency", pop_plot = FALSE)
+Muller_plot(Muller_df, colour_by = "Identity", palette = NA,
+  add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}
 
 \item{colour_by}{Character containing name of column by which to colour the plot}
 
-\item{palette}{List of colours}
+\item{palette}{Either a brewer palette or a vector of colours (if colour_by is categorical)}
 
 \item{add_legend}{Logical whether to show legend}
 
@@ -35,6 +35,10 @@ Muller_plot(Muller_df1)
 # omit genotypes with max frequency < 0.1:
 Muller_df2 <- get_Muller_df(example_edges, example_pop_df, cutoff = 0.2)
 Muller_plot(Muller_df2)
+# colour by a continuous variable:
+Muller_df1 <- get_Muller_df(example_edges, example_pop_df)
+Muller_df1$Val <- as.numeric(Muller_df1$Identity)
+Muller_plot(Muller_df1, colour_by = "Val", add_legend = TRUE)
 
 }
 \seealso{

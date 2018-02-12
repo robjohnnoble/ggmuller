@@ -43,6 +43,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 ### Version history
 
+0.5.1: Can use brewer palettes.
+
 0.5: Smoother plots from sparse data; time column can now be called "Time" instead of "Generation"; replace missing population sizes with zeroes.
 
 0.4: Smoother plotting by default when genotypes suddenly grow from zero to large frequencies; new "start_positions" parameter can be used to override this default.
@@ -67,7 +69,7 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 To cite ggmuller in publications please use
 
-    Robert Noble (2017). ggmuller: Create Muller Plots of Evolutionary Dynamics. R package version 0.4. doi:10.5281/zenodo.591304 https://CRAN.R-project.org/package=ggmuller
+    Robert Noble (2017). ggmuller: Create Muller Plots of Evolutionary Dynamics. R package version 0.5.1. doi:10.5281/zenodo.591304 https://CRAN.R-project.org/package=ggmuller
 
 A BibTeX entry for LaTeX users is
 
@@ -75,7 +77,7 @@ A BibTeX entry for LaTeX users is
     title = {ggmuller: Create Muller Plots of Evolutionary Dynamics},
     author = {Robert Noble},
     year = {2017},
-    note = {R package version 0.4},
+    note = {R package version 0.5.1},
     url = {https://CRAN.R-project.org/package=ggmuller},
     doi = 10.5281/zenodo.591304
     }

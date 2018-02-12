@@ -549,39 +549,32 @@ Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_leg
   # test whether palette is a vector of colours; if not then we'll assume it's the name of a predefined palette:
   palette_named <- !min(sapply(palette, function(X) tryCatch(is.matrix(col2rgb(X)), error = function(e) FALSE)))
   
-  if(is.numeric(Muller_df[ , colour_by])) {
-    ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
+  gg <- ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
     geom_area() +
-    scale_fill_distiller(palette = palette, direction = direction, name = colour_by) + 
-    scale_color_distiller(palette = palette, direction = direction) + 
     theme(legend.position = ifelse(add_legend, "right", "none")) +
     guides(linetype = FALSE, color = FALSE) + 
     scale_x_continuous(name = xlab) + 
     scale_y_continuous(name = ylab)
+  
+  if(is.numeric(Muller_df[ , colour_by])) {
+    gg <- gg + 
+      scale_fill_distiller(palette = palette, direction = direction, name = colour_by) + 
+      scale_color_distiller(palette = palette, direction = direction)
   }
   else {
-    id_list <- sort(unique(select(Muller_df, colour_by))[[1]]) # list of legend entries, omitting NA
     if(palette_named) {
-        ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
-        geom_area() +
+      gg <- gg + 
         scale_fill_brewer(palette = palette, name = colour_by) + 
-        scale_color_brewer(palette = palette) + 
-        theme(legend.position = ifelse(add_legend, "right", "none")) +
-        guides(linetype = FALSE, color = FALSE) + 
-        scale_x_continuous(name = xlab) + 
-        scale_y_continuous(name = ylab)
+        scale_color_brewer(palette = palette)
     }
     else {
-      ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
-        geom_area() +
+      id_list <- sort(unique(select(Muller_df, colour_by))[[1]]) # list of legend entries, omitting NA
+      gg <- gg + 
         scale_fill_manual(values = palette, name = colour_by, breaks = id_list) + 
-        scale_color_manual(values = palette) + 
-        theme(legend.position = ifelse(add_legend, "right", "none")) +
-        guides(linetype = FALSE, color = FALSE) + 
-        scale_x_continuous(name = xlab) + 
-        scale_y_continuous(name = ylab)
+        scale_color_manual(values = palette)
     }
   }
+  return(gg)
 }
 
 #' Draw a Muller plot of population sizes using ggplot2

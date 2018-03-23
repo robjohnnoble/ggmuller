@@ -101,7 +101,7 @@ Muller_plot(Muller_df3_censored, add_legend = TRUE)
 
 ## Further customisation with ggplot
 
-`Muller_plot` is basically a wrapper for ggplot and you may prefer to call ggplot directly to enable further plot customisation. For example:
+`Muller_plot` is basically a wrapper for ggplot. Although `Muller_plot` provides some plotting options (palette, axis labels, and whether to include a legend), you may prefer to call ggplot directly to enable further customisation. For example:
 
 ```{r}
 library(ggplot2)

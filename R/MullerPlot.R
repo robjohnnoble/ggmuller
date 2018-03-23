@@ -417,14 +417,27 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
     stop("colnames(pop_df) must contain Generation (or Time), Identity and Population")
-  if("phylo" %in% class(edges)) {
-    collapse.singles(edges)
-    edges <- edges$edge
+  
+  # check that pop_df and edges have compatible Identity values:
+  if(!is.na(edges)[1]) {
+    set1 <- unique(pop_df$Identity)
+    set2 <- unique(edges$Identity)
+    set3 <- unique(edges$Parent)
+    if(length(setdiff(set1, set2)) != 1) stop("Identity values in edges must match Identity values in pop_df, excluding the original genotype (which has no parent)")
+    # check that Parent and Identity values in edges are consistent:
+    if(length(setdiff(set3, set2)) != 1) stop("Parent values in edges must also appear as Identity values in edges, excluding the original genotype (which has no parent)")
   }
-  edges <- na.omit(edges) # remove any rows containing NA
-  colnames(edges) <- c("Parent", "Identity")
-  if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
-  if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
+  
+  if(!is.na(edges)[1]) {
+    if("phylo" %in% class(edges)) {
+      collapse.singles(edges)
+      edges <- edges$edge
+      }
+    edges <- na.omit(edges) # remove any rows containing NA
+    colnames(edges) <- c("Parent", "Identity")
+    if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
+    if(is.factor(edges$Identity)) edges$Identity <- levels(edges$Identity)[edges$Identity]
+  }
   
   # add rows to pop_df to ensure genotype starting points are plotted correctly:
   pop_df <- add_start_points(pop_df, start_positions)
@@ -449,27 +462,30 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   pop_df$Population <- pop_df$Population / 2 # because of the duplication
   pop_df$Frequency[is.nan(pop_df$Frequency)] <- 0
   
-  # replace each genotype name in adjacency matrix with corresponding Age:
-  edges <- filter_(edges, ~Identity %in% lookup$Identity)
-  edges <- left_join(edges, lookup, by = "Identity")
-  edges <- select_(edges, ~-Identity)
-  colnames(edges) <- c("Parent", "Identity")
-  edges <- arrange_(edges, ~Identity)
-  colnames(lookup)[1] <- "Parent"
-  edges <- left_join(edges, lookup, by = "Parent")
-  edges$Parent <- edges$Age
-  edges <- select_(edges, ~-Age)
-  
   # duplicate rows:
   Muller_df <- rbind(pop_df, pop_df)
   Muller_df <- arrange_(Muller_df, ~Generation)
   
-  # get the path:
-  path <- path_vector(edges)
-  path <- rev(path) # apparently, the convention for Muller plots to have earliest-arriving genotypes plotted nearest the top
-  
-  # replace each Age in the path with corresponding genotype name:
-  path <- left_join(data.frame(Age = path), lookup, by = "Age")$Parent
+  if(!is.na(edges)[1]) {
+    # replace each genotype name in adjacency matrix with corresponding Age:
+    edges <- filter_(edges, ~Identity %in% lookup$Identity)
+    edges <- left_join(edges, lookup, by = "Identity")
+    edges <- select_(edges, ~-Identity)
+    colnames(edges) <- c("Parent", "Identity")
+    edges <- arrange_(edges, ~Identity)
+    colnames(lookup)[1] <- "Parent"
+    edges <- left_join(edges, lookup, by = "Parent")
+    edges$Parent <- edges$Age
+    edges <- select_(edges, ~-Age)
+    
+    # get the path:
+    path <- path_vector(edges)
+    path <- rev(path) # apparently, the convention for Muller plots to have earliest-arriving genotypes plotted nearest the top
+    
+    # replace each Age in the path with corresponding genotype name:
+    path <- left_join(data.frame(Age = path), lookup, by = "Age")$Parent
+  }
+  else path <- c(unique(pop_df$Identity)[1], unique(pop_df$Identity)[1]) # if there's only one genotype
   
   # rearrange the population data according to the path:
   Muller_df <- reorder_by_vector(Muller_df, path)

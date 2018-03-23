@@ -418,11 +418,11 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
     stop("colnames(pop_df) must contain Generation (or Time), Identity and Population")
   
-  # check that pop_df and edges have compatible Identity values:
   if(!is.na(edges)[1]) {
     set1 <- unique(pop_df$Identity)
     set2 <- unique(edges$Identity)
     set3 <- unique(edges$Parent)
+    # check that pop_df and edges have compatible Identity values:
     if(length(setdiff(set1, set2)) != 1) stop("Identity values in edges must match Identity values in pop_df, excluding the original genotype (which has no parent)")
     # check that Parent and Identity values in edges are consistent:
     if(length(setdiff(set3, set2)) != 1) stop("Parent values in edges must also appear as Identity values in edges, excluding the original genotype (which has no parent)")

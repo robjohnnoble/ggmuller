@@ -114,14 +114,13 @@ get_population_df <- function(df) {
   . <- NULL # avoid check() note
   Population <- NULL # avoid check() note
   
-  max_gen <- max(df$Generation)
-  max_gen_ids <- filter_(df, ~Generation == max_gen)$Identity
-  df <- filter_(df, ~Identity %in% max_gen_ids)
-  n <- length(unique(df$Identity))
+  max_gen <- max(df$Generation) # final generation
+  max_gen_ids <- filter_(df, ~Generation == max_gen)$Identity # vector containing all identities at final generation
+  df <- filter_(df, ~Identity %in% max_gen_ids) # filter df to include only identities present at final generation
+  n <- length(unique(df$Identity)) # number of unique identities in df after filtering
   master <- data.frame(Generation = rep(unique(df$Generation), each = n),
-                       Identity = unique(df$Identity))
-  res <- master %>%
-    left_join(., df, by = c("Generation", "Identity")) %>%
+                       Identity = unique(df$Identity)) # data frame containing all combinations of generations and identities
+  res <-  left_join(master, df, by = c("Generation", "Identity")) %>%
     mutate(Population = ifelse(Population %in% NA, 0, Population))
   cols <- colnames(df)[!(colnames(df) %in% c("Generation", "Identity", "Population"))]
   for(col in cols) res[, col] <- res[res$Generation == max(res$Generation), col]

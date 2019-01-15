@@ -382,6 +382,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
 get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
+  Identity <- NULL # avoid check() note
   
   original_colname <- "Generation"
   # rename Time column (original name will be restored later):
@@ -393,6 +394,11 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # add missing population values:
   if(dim(pop_df)[1] != length(unique(pop_df$Identity)) * length(unique(pop_df$Generation))) {
     added_rows <- expand.grid(Identity = unique(pop_df$Identity), Generation = unique(pop_df$Generation))
+    added_props <- group_by(pop_df, Identity) %>% 
+      slice(1) %>% 
+      ungroup() %>% 
+      select(-one_of("Generation", "Population"))
+    added_rows <- merge(added_rows, added_props, all = TRUE)
     pop_df <- merge(added_rows, pop_df, all = TRUE)
     pop_df[is.na(pop_df$Population), "Population"] <- 0
     pop_df <- arrange_(pop_df, ~Generation)

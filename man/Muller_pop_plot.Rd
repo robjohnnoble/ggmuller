@@ -5,7 +5,8 @@
 \title{Draw a Muller plot of population sizes using ggplot2}
 \usage{
 Muller_pop_plot(Muller_df, colour_by = "Identity", palette = NA,
-  add_legend = FALSE, xlab = NA, ylab = "Population")
+  add_legend = FALSE, xlab = NA, ylab = "Population",
+  conceal_edges = FALSE)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}
@@ -19,6 +20,8 @@ Muller_pop_plot(Muller_df, colour_by = "Identity", palette = NA,
 \item{xlab}{Label of x axis}
 
 \item{ylab}{Label of y axis}
+
+\item{conceal_edges}{Whether try to conceal the edges between polygons (usually unnecessary or undesirable)}
 }
 \value{
 None

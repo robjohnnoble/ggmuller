@@ -5,7 +5,8 @@
 \title{Draw a Muller plot of frequencies using ggplot2}
 \usage{
 Muller_plot(Muller_df, colour_by = "Identity", palette = NA,
-  add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE)
+  add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE,
+  conceal_edges = FALSE)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}
@@ -21,6 +22,8 @@ Muller_plot(Muller_df, colour_by = "Identity", palette = NA,
 \item{ylab}{Label of y axis}
 
 \item{pop_plot}{Logical for whether this function is being called from Muller_pop_plot (otherwise should be FALSE)}
+
+\item{conceal_edges}{Whether try to conceal the edges between polygons (usually unnecessary or undesirable)}
 }
 \value{
 None

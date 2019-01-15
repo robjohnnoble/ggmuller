@@ -506,7 +506,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # restore original time column name:
   colnames(Muller_df)[colnames(Muller_df) == "Generation"] <- original_colname
   
-  return(Muller_df)
+  return(as.data.frame(Muller_df))
 }
 
 #' Draw a Muller plot of frequencies using ggplot2
@@ -518,6 +518,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
 #' @param xlab Label of x axis
 #' @param ylab Label of y axis
 #' @param pop_plot Logical for whether this function is being called from Muller_pop_plot (otherwise should be FALSE)
+#' @param conceal_edges Whether try to conceal the edges between polygons (usually unnecessary or undesirable)
 #'
 #' @return None
 #' 
@@ -540,7 +541,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom grDevices col2rgb
-Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE) {
+Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_legend = FALSE, xlab = NA, ylab = "Frequency", pop_plot = FALSE, conceal_edges = FALSE) {
   if(!pop_plot & "___special_empty" %in% Muller_df$Group_id) warning("Dataframe is set up for Muller_pop_plot. Use Muller_pop_plot to plot populations rather than frequencies.")
   
   y_factor <- ifelse(pop_plot, "Population", "Frequency")
@@ -555,17 +556,20 @@ Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_leg
     }
     else {
       long_palette <- c("#8A7C64", "#599861", "#89C5DA", "#DA5724", "#74D944", "#CE50CA", 
-                      "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
-                      "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
-                      "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
-                      "#5E738F", "#D1A33D")
+                        "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", 
+                        "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", 
+                        "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", 
+                        "#5E738F", "#D1A33D")
       palette <- rep(long_palette, ceiling(length(unique(Muller_df$Identity)) / length(long_palette)))
     }
   }
   # test whether palette is a vector of colours; if not then we'll assume it's the name of a predefined palette:
   palette_named <- !min(sapply(palette, function(X) tryCatch(is.matrix(col2rgb(X)), error = function(e) FALSE)))
   
-  gg <- ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by)) + 
+  if(conceal_edges) gg <- ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by, colour = colour_by))
+  else gg <- ggplot(Muller_df, aes_string(x = x_factor, y = y_factor, group = "Group_id", fill = colour_by))
+  
+  gg <- gg + 
     geom_area() +
     theme(legend.position = ifelse(add_legend, "right", "none")) +
     guides(linetype = FALSE, color = FALSE) + 
@@ -603,6 +607,7 @@ Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_leg
 #' @param add_legend Logical whether to show legend
 #' @param xlab Label of x axis
 #' @param ylab Label of y axis
+#' @param conceal_edges Whether try to conceal the edges between polygons (usually unnecessary or undesirable)
 #'
 #' @return None
 #' 
@@ -616,12 +621,12 @@ Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_leg
 #' @export
 #' @import dplyr
 #' @import ggplot2
-Muller_pop_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_legend = FALSE, xlab = NA, ylab = "Population") {
+Muller_pop_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_legend = FALSE, xlab = NA, ylab = "Population", conceal_edges = FALSE) {
   
   # add rows for empty space (unless this has been done already):
   if(!"___special_empty" %in% Muller_df$Group_id) Muller_df <- add_empty_pop(Muller_df)
   
-  Muller_plot(Muller_df, colour_by = colour_by, palette = palette, add_legend = add_legend, pop_plot = TRUE, xlab = xlab, ylab = ylab)
+  Muller_plot(Muller_df, colour_by = colour_by, palette = palette, add_legend = add_legend, pop_plot = TRUE, xlab = xlab, ylab = ylab, conceal_edges = conceal_edges)
 }
 
 #' Modify a dataframe to enable plotting of populations instead of frequencies

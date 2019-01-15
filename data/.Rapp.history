@@ -1,3 +1,3 @@
 load("/Users/rnoble/Documents/GitHub/ggmuller/data/example_df.RData")
 load("/Users/rnoble/Documents/GitHub/ggmuller/data/example_edges.RData")
-load("/Users/rnoble/Documents/GitHub/ggmuller/data/example_edges.RData")
+load("/Users/rnoble/Documents/GitHub/ggmuller/data/example_pop_df.RData")

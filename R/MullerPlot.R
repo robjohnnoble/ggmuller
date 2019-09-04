@@ -274,7 +274,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   
   # set small time interval:
   all_gens_list <- unique(pop_df$Generation)
-  delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list))))
+  delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list)), 0.5))
   start_positions <- max(start_positions, delta)
   start_positions <- min(start_positions, 1 - delta)
     

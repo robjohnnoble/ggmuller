@@ -220,6 +220,7 @@ adj_matrix_to_tree <- function(edges) {
   if(length(path) != 2 * dim(edges)[1] + 2) stop("Error: adjacency matrix seems to be bipartite.")
   
   # relabel nodes to conform with "phylo" standard:
+  edges$tip.label <- ifelse(edges$is_tip, edges$Identity, NA)
   edges <- rbind(filter_(edges, ~is_tip) %>% arrange_(~-depth, ~rank_at_depth), filter_(edges, ~is_tip == FALSE) %>% arrange_(~depth, ~rank_at_depth))
   if(length(unique(edges$Identity)) > num_tips) edges$New_Identity <- c(1:num_tips, (num_tips + 2):(length(unique(edges$Identity)) + 1))
   else edges$New_Identity <- c(1:num_tips)
@@ -232,13 +233,14 @@ adj_matrix_to_tree <- function(edges) {
   # create phylo object:
   tree <- list()
   tree$edge.length <- edges$edge.length
+  tree$tip.label <- edges$tip.label[!is.na(edges$tip.label)]
   edges <- select_(edges, ~New_Parent, ~New_Identity)
   colnames(edges) <- NULL
   rownames(edges) <- NULL
   tree$edge <- as.matrix(edges)
   tree$edge <- cbind(as.integer(tree$edge[,1]), as.integer(tree$edge[,2]))
   tree$Nnode <- as.integer(max(edges) - num_tips)
-  tree$tip.label <- as.character(rep(NA, num_tips))
+  #tree$tip.label <- as.character(rep(NA, num_tips))
   class(tree) <- "phylo"
   reorder.phylo(tree, order = "cladewise")
   attr(tree, "order") <- "cladewise"

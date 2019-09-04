@@ -43,6 +43,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 ### Version history
 
+0.5.4: Fix a rare bug; add tip labels to trees.
+
 0.5.3: get_Muller_df now fills all columns when adding missing rows (issue #10); polygon edges now aren't drawn by default. 
 
 0.5.2: Can cope with the special case of only one genotype.

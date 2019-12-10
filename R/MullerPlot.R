@@ -391,6 +391,31 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
     original_colname <- "Time"
   }
   
+  # filter for frequencies above cutoff:
+  if(cutoff > 0) {
+    pop_df <- pop_df %>% group_by(Generation) %>% 
+      mutate(Freq = Population / sum(Population)) %>% 
+      ungroup()
+    biglist <- list()
+    big <- group_by(pop_df, Identity) %>% 
+      filter(max(Freq) > cutoff, Generation == max(Generation)) %>% 
+      select(Identity) %>% 
+      ungroup()
+    biglist[[1]] <- as.numeric(unlist((unique(big))))
+    counter <- 1
+    while(TRUE) {
+      counter <- counter + 1
+      big <- filter(pop_df, Identity %in% biglist[[counter - 1]]) %>% 
+        select(Parent)
+      biglist[[counter]] <- as.numeric(unlist((unique(big))))
+      if(identical(biglist[[counter]], biglist[[counter - 1]])) break
+      if(counter > 1000) stop("error in attempting to remove rare types (try larger cutoff value?)")
+    }
+    to_include <- unique(unlist(biglist))
+    pop_df <- filter(pop_df, Identity %in% to_include) %>% 
+      select(-Freq)
+  }
+  
   # add missing population values:
   if(dim(pop_df)[1] != length(unique(pop_df$Identity)) * length(unique(pop_df$Generation))) {
     added_rows <- expand.grid(Identity = unique(pop_df$Identity), Generation = unique(pop_df$Generation))
@@ -496,14 +521,6 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # rearrange the population data according to the path:
   Muller_df <- reorder_by_vector(Muller_df, path)
   
-  # optionally remove rare genotypes, and recalculate frequencies:
-  if(cutoff > 0) {
-    Muller_df <- Muller_df %>% group_by_(~Identity) %>% 
-      filter_(~max(Frequency) >= cutoff / 2)
-    Muller_df <- Muller_df %>% group_by_(~Generation) %>% 
-      mutate(Frequency = Population / sum(Population)) %>% 
-      ungroup()
-  }
   # the following adjusts for ggplot2 v.2.2.0, which (unlike v.2.1.0) stacks areas in order of their factor levels
   Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(
     unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)

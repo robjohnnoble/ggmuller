@@ -122,8 +122,29 @@ get_population_df <- function(df) {
                        Identity = unique(df$Identity)) # data frame containing all combinations of generations and identities
   res <-  left_join(master, df, by = c("Generation", "Identity")) %>%
     mutate(Population = ifelse(Population %in% NA, 0, Population))
+  
+  #remove the case where max(res$Generation) is achieved for 2 values of NumCells (ex 999991 and 10e6)
+  if( ! length(which(res$Generation==max(res$Generation) & ! res$NumCells==max(res$NumCells,na.rm =TRUE))) ==0){
+    res<-res[-which(res$Generation==max(res$Generation) & ! res$NumCells==max(res$NumCells,na.rm =TRUE)), ]
+  }
+  
   cols <- colnames(df)[!(colnames(df) %in% c("Generation", "Identity", "Population"))]
-  for(col in cols) res[, col] <- res[res$Generation == max(res$Generation), col]
+  
+  # Deal with some problems occuring when the dimension of the columns are not compatibles.
+  for (col in cols){
+    
+    if(length(unique(res[res$Generation == max(res$Generation),col]))==1){
+      res[, col] <- unique(res[res$Generation == max(res$Generation), 
+                               col])
+    }else if(  length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]) == 0){
+      res[, col] <- res[res$Generation == max(res$Generation), 
+                        col]
+    }else{
+      warning(paste0("pb of dimension for column ", col, " modulo value ", length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]) ))
+      break
+    }
+    
+  } 
   
   # restore original time column name:
   colnames(res)[colnames(res) == "Generation"] <- original_colname

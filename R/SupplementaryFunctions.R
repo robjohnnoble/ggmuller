@@ -134,16 +134,19 @@ get_population_df <- function(df) {
   cols <- colnames(df)[!(colnames(df) %in% c("Generation", "NumCells","Identity", "Population"))]
   
   # Deal with some problems occuring when the dimension of the columns are not compatibles.
+  #warnings are given if the first case (taht should always happen) don't occur.
   for (col in cols){
     
-    if(length(unique(res[res$Generation == max(res$Generation),col]))==1){
-      res[, col] <- unique(res[res$Generation == max(res$Generation), 
-                               col])
-    }else if(  length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]) == 0){
+    # the first case should always happen
+    if(  length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]) == 0){
       res[, col] <- res[res$Generation == max(res$Generation), 
                         col]
+    }else if(length(unique(res[res$Generation == max(res$Generation),col]))==1){
+      res[, col] <- unique(res[res$Generation == max(res$Generation), 
+                               col])
+      warning(paste0("unique value for ", col, " but pb of modulo which values : ",  length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]), "instead of 0"))
     }else{
-      warning(paste0("pb of dimension for column ", col, " modulo value ", length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]) ))
+      warning(paste0("pb of dimension for column ", col, " modulo values ", length(res[, col]) %% length(res[res$Generation == max(res$Generation),col]) ))
       break
     }
     

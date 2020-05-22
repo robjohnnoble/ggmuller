@@ -118,17 +118,20 @@ get_population_df <- function(df) {
   max_gen_ids <- filter_(df, ~Generation == max_gen)$Identity # vector containing all identities at final generation
   df <- filter_(df, ~Identity %in% max_gen_ids) # filter df to include only identities present at final generation
   n <- length(unique(df$Identity)) # number of unique identities in df after filtering
-  master <- data.frame(Generation = rep(unique(df$Generation), each = n),
-                       Identity = unique(df$Identity)) # data frame containing all combinations of generations and identities
-  res <-  left_join(master, df, by = c("Generation", "Identity")) %>%
+  
+  # data frame containing all combinations of generations, NumCells and identities
+  # Should also deal with the case where max(res$Generation) is achieved for 2 values of NumCells (ex 999991 and 10e6)
+  master <- data.frame(Generation = rep(InteractionGenerationNumCells$Generation, 
+                                        each = n),
+                       NumCells =rep(InteractionGenerationNumCells$NumCells, 
+                                     each = n),
+                       Identity = unique(df$Identity)) 
+  
+  
+  res <- left_join(master, df, by = c("Generation","NumCells",  "Identity")) %>% 
     mutate(Population = ifelse(Population %in% NA, 0, Population))
   
-  #remove the case where max(res$Generation) is achieved for 2 values of NumCells (ex 999991 and 10e6)
-  if( ! length(which(res$Generation==max(res$Generation) & ! res$NumCells==max(res$NumCells,na.rm =TRUE))) ==0){
-    res<-res[-which(res$Generation==max(res$Generation) & ! res$NumCells==max(res$NumCells,na.rm =TRUE)), ]
-  }
-  
-  cols <- colnames(df)[!(colnames(df) %in% c("Generation", "Identity", "Population"))]
+  cols <- colnames(df)[!(colnames(df) %in% c("Generation", "NumCells","Identity", "Population"))]
   
   # Deal with some problems occuring when the dimension of the columns are not compatibles.
   for (col in cols){

@@ -119,6 +119,8 @@ get_population_df <- function(df) {
   df <- filter_(df, ~Identity %in% max_gen_ids) # filter df to include only identities present at final generation
   n <- length(unique(df$Identity)) # number of unique identities in df after filtering
   
+  InteractionGenerationNumCells <- unique(df[,c('Generation','NumCells')])
+  
   # data frame containing all combinations of generations, NumCells and identities
   # Should also deal with the case where max(res$Generation) is achieved for 2 values of NumCells (ex 999991 and 10e6)
   master <- data.frame(Generation = rep(InteractionGenerationNumCells$Generation, 

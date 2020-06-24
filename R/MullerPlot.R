@@ -583,7 +583,7 @@ Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_leg
   if(is.na(xlab)) xlab <- x_factor
   direction <- 1
   if(is.na(palette[1])) {
-    if(is.numeric(Muller_df[ , colour_by])) {
+    if(is.numeric(pull(Muller_df, colour_by))) {
       palette <- "RdBu"
       direction <- -1
     }
@@ -609,7 +609,7 @@ Muller_plot <- function(Muller_df, colour_by = "Identity", palette = NA, add_leg
     scale_x_continuous(name = xlab) + 
     scale_y_continuous(name = ylab)
   
-  if(is.numeric(Muller_df[ , colour_by])) {
+  if(is.numeric(pull(Muller_df, colour_by))) {
     gg <- gg + 
       scale_fill_distiller(palette = palette, direction = direction, name = colour_by) + 
       scale_color_distiller(palette = palette, direction = direction)

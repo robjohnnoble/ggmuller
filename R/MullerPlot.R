@@ -383,51 +383,14 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
   Identity <- NULL # avoid check() note
+  Freq <- NULL # avoid check() note
+  Parent <- NULL # avoid check() note
   
   original_colname <- "Generation"
   # rename Time column (original name will be restored later):
   if("Time" %in% colnames(pop_df) && !("Generation" %in% colnames(pop_df))) {
     colnames(pop_df)[colnames(pop_df) == "Time"] <- "Generation"
     original_colname <- "Time"
-  }
-  
-  # filter for frequencies above cutoff:
-  if(cutoff > 0) {
-    pop_df <- pop_df %>% group_by(Generation) %>% 
-      mutate(Freq = Population / sum(Population)) %>% 
-      ungroup()
-    biglist <- list()
-    big <- group_by(pop_df, Identity) %>% 
-      filter(max(Freq) > cutoff, Generation == max(Generation)) %>% 
-      select(Identity) %>% 
-      ungroup()
-    biglist[[1]] <- as.numeric(unlist((unique(big))))
-    counter <- 1
-    while(TRUE) {
-      counter <- counter + 1
-      big <- filter(pop_df, Identity %in% biglist[[counter - 1]]) %>% 
-        select(Parent)
-      biglist[[counter]] <- as.numeric(unlist((unique(big))))
-      if(identical(biglist[[counter]], biglist[[counter - 1]])) break
-      if(counter > 1000) stop("error in attempting to remove rare types (try larger cutoff value?)")
-    }
-    to_include <- unique(unlist(biglist))
-    pop_df <- filter(pop_df, Identity %in% to_include) %>% 
-      select(-Freq)
-  }
-  
-  # add missing population values:
-  if(dim(pop_df)[1] != length(unique(pop_df$Identity)) * length(unique(pop_df$Generation))) {
-    added_rows <- expand.grid(Identity = unique(pop_df$Identity), Generation = unique(pop_df$Generation))
-    added_props <- group_by(pop_df, Identity) %>% 
-      slice(1) %>% 
-      ungroup() %>% 
-      select(-one_of("Generation", "Population"))
-    added_rows <- merge(added_rows, added_props, all = TRUE)
-    pop_df <- merge(added_rows, pop_df, all = TRUE)
-    pop_df[is.na(pop_df$Population), "Population"] <- 0
-    pop_df <- arrange_(pop_df, ~Generation)
-    warning("missing population sizes replaced by zeroes")
   }
   
   if (!missing(add_zeroes)) {
@@ -448,6 +411,53 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # check/set column names:
   if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
     stop("colnames(pop_df) must contain Generation (or Time), Identity and Population")
+  
+  # filter for frequencies above cutoff:
+  if(cutoff > 0) {
+    
+    pop_df <- left_join(pop_df, edges, by = "Identity")
+    
+    pop_df <- pop_df %>% group_by(Generation) %>% 
+      mutate(Freq = Population / sum(Population)) %>% 
+      ungroup()
+    biglist <- list()
+    
+    big <- group_by(pop_df, Identity) %>% 
+      filter(max(Freq) > cutoff, Generation == max(Generation)) %>% 
+      select(Identity) %>% 
+      ungroup()
+    biglist[[1]] <- pull(unique(big))
+    counter <- 1
+    
+    while(TRUE) {
+      counter <- counter + 1
+      big <- filter(pop_df, Identity %in% biglist[[counter - 1]]) %>% 
+        select(Parent)
+      biglist[[counter]] <- pull(unique(big))
+      if(identical(biglist[[counter]], biglist[[counter - 1]])) break
+      if(counter > 1000) stop("error in attempting to remove rare types (try larger cutoff value?)")
+    }
+    
+    to_include <- unique(unlist(biglist))
+    
+    pop_df <- filter(pop_df, Identity %in% to_include) %>% 
+      select(-Freq, -Parent)
+    edges <- filter(edges, Identity %in% to_include)
+  }
+  
+  # add missing population values:
+  if(dim(pop_df)[1] != length(unique(pop_df$Identity)) * length(unique(pop_df$Generation))) {
+    added_rows <- expand.grid(Identity = unique(pop_df$Identity), Generation = unique(pop_df$Generation))
+    added_props <- group_by(pop_df, Identity) %>% 
+      slice(1) %>% 
+      ungroup() %>% 
+      select(-one_of("Generation", "Population"))
+    added_rows <- merge(added_rows, added_props, all = TRUE)
+    pop_df <- merge(added_rows, pop_df, all = TRUE)
+    pop_df[is.na(pop_df$Population), "Population"] <- 0
+    pop_df <- arrange_(pop_df, ~Generation)
+    warning("missing population sizes replaced by zeroes")
+  }
   
   if(!is.na(edges)[1]) {
     set1 <- unique(pop_df$Identity)

@@ -111,6 +111,14 @@ get_population_df <- function(df) {
   if(!("Generation" %in% colnames(df)) | !("Identity" %in% colnames(df)) | !("Population" %in% colnames(df))) 
     stop("colnames(df) must contain Generation (or Time), Identity and Population")
   
+  l1 <- length(unique(df$Generation))
+  l2 <- length(df$Generation)
+  if(l2 - l1 == 1) {
+    stop("One Generation value is duplicated; each row must have a unique Generation value")
+  } else if(l2 - l1 > 1) {
+    stop(paste0(l2 - l1, " Generation values are duplicated; each row must have a unique Generation value"))
+  }
+  
   . <- NULL # avoid check() note
   Population <- NULL # avoid check() note
   

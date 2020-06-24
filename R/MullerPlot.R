@@ -277,7 +277,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   delta <- abs(min(1E-2 * min(diff(all_gens_list)), 1E-4 * (max(all_gens_list) - min(all_gens_list)), 0.5))
   start_positions <- max(start_positions, delta)
   start_positions <- min(start_positions, 1 - delta)
-    
+  
   # set small initial population size:
   init_size <- 0
   
@@ -316,7 +316,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   first_gens$Generation <- first_gens$start_time - start_positions * (first_gens$start_time - sapply(first_gens$start_time, lag_gens))
   # set small initial populations in reference list:
   first_gens$Population2 <- init_size
-
+  
   # replace initial populations in the dataframe with values from reference list:
   pop_df <- merge(pop_df, first_gens, all.x = TRUE)
   pop_df$Population <- ifelse(is.na(pop_df$Population2), pop_df$Population, pop_df$Population2)
@@ -324,7 +324,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
   
   # restore original time column name:
   colnames(pop_df)[colnames(pop_df) == "Generation"] <- original_colname
-
+  
   return(pop_df)
 }
 
@@ -432,11 +432,11 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   
   if (!missing(add_zeroes)) {
     warning("argument add_zeroes is deprecated (it is now always TRUE).", 
-    call. = FALSE)
+            call. = FALSE)
   }
   if (!missing(smooth_start_points)) {
     warning("argument smooth_start_points is deprecated (it is now always TRUE).", 
-    call. = FALSE)
+            call. = FALSE)
   }
   if (!missing(threshold)) {
     warning("argument threshold is deprecated (use cutoff instead, noting that genotypes whose abundance never exceeds the cutoff value are removed, 
@@ -463,7 +463,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
     if("phylo" %in% class(edges)) {
       collapse.singles(edges)
       edges <- edges$edge
-      }
+    }
     edges <- na.omit(edges) # remove any rows containing NA
     colnames(edges) <- c("Parent", "Identity")
     if(is.factor(edges$Parent)) edges$Parent <- levels(edges$Parent)[edges$Parent]
@@ -524,7 +524,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # the following adjusts for ggplot2 v.2.2.0, which (unlike v.2.1.0) stacks areas in order of their factor levels
   Muller_df$Group_id <- factor(Muller_df$Group_id, levels = rev(
     unlist(as.data.frame(Muller_df %>% filter_(~Generation == max(Generation)) %>% select_(~Group_id)), use.names=FALSE)
-    ))
+  ))
   
   # restore original time column name:
   colnames(Muller_df)[colnames(Muller_df) == "Generation"] <- original_colname

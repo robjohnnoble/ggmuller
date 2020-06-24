@@ -409,7 +409,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   }
   
   # check/set column names:
-  if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Generation" %in% colnames(pop_df))) 
+  if(!("Generation" %in% colnames(pop_df)) | !("Identity" %in% colnames(pop_df)) | !("Population" %in% colnames(pop_df))) 
     stop("colnames(pop_df) must contain Generation (or Time), Identity and Population")
   
   # filter for frequencies above cutoff:

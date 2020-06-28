@@ -415,7 +415,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   # filter for frequencies above cutoff:
   if(cutoff > 0) {
     
-    pop_df <- left_join(pop_df, edges, by = "Identity")
+    if(!"Parent" %in% colnames(pop_df)) pop_df <- left_join(pop_df, edges, by = "Identity")
     
     pop_df <- pop_df %>% group_by(Generation) %>% 
       mutate(Freq = Population / sum(Population)) %>% 

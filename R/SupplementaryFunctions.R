@@ -155,7 +155,7 @@ get_population_df <- function(df) {
 #'
 #' @export
 #' @import dplyr
-#' @import ape
+#' @rawNamespace import(ape, except = where)
 adj_matrix_to_tree <- function(edges) {
   # initialise:
   edges <- as.data.frame(edges)

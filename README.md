@@ -43,6 +43,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 ### Version history
 
+0.5.6: Avoid loading or importing ape package, to avoid namespace conflict between ape and dplyr.
+
 0.5.5: Optional removal of rare types is now much more efficient for large data sets.
 
 0.5.4: Fix a rare bug; add tip labels to trees.

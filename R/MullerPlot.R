@@ -379,6 +379,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
 #' @export
 #' @import dplyr
 #' @importFrom stats na.omit
+#' @importFrom ape collapse.singles
 get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note

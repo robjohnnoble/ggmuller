@@ -78,6 +78,7 @@ get_edges <- function(df, generation = NA) {
 #' @seealso \code{\link{get_edges}}
 #'
 #' @examples
+#' \dontrun{
 #' # extract the adjacency matrix from the data frame:
 #' edges <- get_edges(example_df)
 #' 
@@ -95,6 +96,7 @@ get_edges <- function(df, generation = NA) {
 #' Muller_plot(Muller_df, colour_by = "RelativeFitness", 
 #'             palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
 #'             add_legend = TRUE)
+#' }
 #'
 #' @export
 #' @import dplyr

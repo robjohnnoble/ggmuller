@@ -24,12 +24,12 @@ df <- rbind(df, df) # duplicate rows
 require(dplyr)
 df <- arrange(df, Generation) # put in chronological order
 edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6) # adjacency matrix
-path <- path_vector(edges1) # path through the adjacency matrix
+path <- path_vector_new(edges1)$path # path through the adjacency matrix
 reorder_by_vector(df, path)
 
 }
 \seealso{
-\code{\link{path_vector}}
+\code{\link{path_vector_new}}
 }
 \author{
 Rob Noble, \email{robjohnnoble@gmail.com}

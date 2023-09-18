@@ -4,7 +4,9 @@
 \name{example_edges}
 \alias{example_edges}
 \title{Example adjacency matrix}
-\format{A dataframe with column names "Parent" and "Identity"}
+\format{
+A dataframe with column names "Parent" and "Identity"
+}
 \usage{
 data(example_edges)
 }

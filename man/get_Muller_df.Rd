@@ -4,8 +4,15 @@
 \alias{get_Muller_df}
 \title{Create a data frame from which to create a Muller plot}
 \usage{
-get_Muller_df(edges, pop_df, cutoff = 0, start_positions = 0.5,
-  threshold = NA, add_zeroes = NA, smooth_start_points = NA)
+get_Muller_df(
+  edges,
+  pop_df,
+  cutoff = 0,
+  start_positions = 0.5,
+  threshold = NA,
+  add_zeroes = NA,
+  smooth_start_points = NA
+)
 }
 \arguments{
 \item{edges}{Dataframe comprising an adjacency matrix, or tree of class "phylo"}

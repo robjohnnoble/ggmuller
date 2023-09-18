@@ -4,9 +4,15 @@
 \alias{Muller_pop_plot}
 \title{Draw a Muller plot of population sizes using ggplot2}
 \usage{
-Muller_pop_plot(Muller_df, colour_by = "Identity", palette = NA,
-  add_legend = FALSE, xlab = NA, ylab = "Population",
-  conceal_edges = FALSE)
+Muller_pop_plot(
+  Muller_df,
+  colour_by = "Identity",
+  palette = NA,
+  add_legend = FALSE,
+  xlab = NA,
+  ylab = "Population",
+  conceal_edges = FALSE
+)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}

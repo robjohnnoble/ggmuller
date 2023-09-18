@@ -8,7 +8,7 @@ vignette: >
 ---
 Ggmuller is an attempt to set an easy-to-use standard for representing evolutionary dynamics as stacked area plots that combine information about frequency dynamics and phylogeny. The horizontal axis is time, and shapes of different colours represent genotypes (or other subtypes), with height corresponding to genotype frequency (or relative abundance) at the corresponding time point. Descendant genotypes are shown emerging from inside their parents.
 
-Such diagrams are sometimes termed Muller plots in honour of Hermann Joseph Muller, who [used them in 1932](https://www.jstor.org/stable/2456922) to illustrate an evolutionary advantage of sex. More recently, they can be seen in experimental evolution papers by Richard Lenski, Jeffrey Barrick and others, and in many cancer evolution reviews.
+Such diagrams are sometimes termed Muller plots in honour of Hermann Joseph Muller, who used them in 1932 to illustrate an evolutionary advantage of sex. More recently, they can be seen in experimental evolution papers by Richard Lenski, Jeffrey Barrick and others, and in many cancer evolution reviews.
 
 ## How does it work?
 

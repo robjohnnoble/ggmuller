@@ -4,9 +4,16 @@
 \alias{Muller_plot}
 \title{Draw a Muller plot of frequencies using ggplot2}
 \usage{
-Muller_plot(Muller_df, colour_by = "Identity", palette = NA,
-  add_legend = FALSE, xlab = NA, ylab = "Frequency",
-  pop_plot = FALSE, conceal_edges = FALSE)
+Muller_plot(
+  Muller_df,
+  colour_by = "Identity",
+  palette = NA,
+  add_legend = FALSE,
+  xlab = NA,
+  ylab = "Frequency",
+  pop_plot = FALSE,
+  conceal_edges = FALSE
+)
 }
 \arguments{
 \item{Muller_df}{Dataframe created by get_Muller_df}

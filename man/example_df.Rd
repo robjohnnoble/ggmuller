@@ -4,7 +4,9 @@
 \name{example_df}
 \alias{example_df}
 \title{Example dataframe}
-\format{A dataframe with column names "Generation", "Identity", "Parent", "Population" and "RelativeFitness"}
+\format{
+A dataframe with column names "Generation", "Identity", "Parent", "Population" and "RelativeFitness"
+}
 \usage{
 data(example_df)
 }

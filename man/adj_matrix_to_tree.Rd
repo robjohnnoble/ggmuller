@@ -17,9 +17,8 @@ Create a tree object of class "phylo" from an adjacency matrix
 }
 \examples{
 edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6)
-require(ape)
 tree <- adj_matrix_to_tree(edges1)
-plot(tree)
+class(tree)
 
 }
 \author{

@@ -100,7 +100,7 @@ move_up <- function(edges, identity) {
 #' @export
 #' @import dplyr
 find_start_node <- function(edges) {
-  start <- sort(edges$Parent)[1] # reasonable guess
+  start <- edges$Parent[1] # reasonable guess
   if(is.factor(start)) start <- levels(start)[start]
   repeat {
     if(move_up(edges, start) == start) break
@@ -154,6 +154,111 @@ path_vector <- function(edges) {
   return(path)
 }
 
+#' Add a row to the edges list to represent the root node (if not already present).
+#' @param tree Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
+#'
+#' @return The same dataframe including a row representing the root node.
+#' 
+#' @author Rob Noble, \email{robjohnnoble@gmail.com}
+#' 
+#' @examples
+#' tree1 <- data.frame(Parent = c(1,1,1,2,3,4), 
+#'                     Identity = 2:7)
+#' add_root_row(tree1)
+#'
+#' @export
+add_root_row <- function(tree) {
+  start <- setdiff(tree$Parent, tree$Identity)
+  if(length(start) > 1) stop("Input dataframe is missing one or more rows")
+  if(length(start) > 0) { # add row for root node
+    if("Population" %in% colnames(tree)) {
+      root_row <- data.frame(Parent = start, Identity = start, Population = 0)
+      message("Assigning Population = 0 to the root node")
+    }
+    else root_row <- data.frame(Parent = start, Identity = start)
+    tree <- rbind(root_row, tree)
+  }
+  return(tree)
+}
+
+#' Get adjacency list of a tree.
+#' @param tree Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
+#'
+#' @return The adjacency list.
+#' 
+#' @author Rob Noble, \email{robjohnnoble@gmail.com}
+#' 
+#' @examples
+#' tree1 <- data.frame(Parent = c(1,1,1,1,2,3,4), 
+#'                     Identity = 1:7, 
+#'                     Population = c(1, rep(5, 6)))
+#' get_Adj(tree1)
+#'
+#' @export
+get_Adj <- function(tree) {
+  n<-length(tree$Identity)
+  Adj <- vector(mode = "list", length = n)
+  for (i in 1:n) if(tree$Parent[i] != tree$Identity[i]) {
+    p <- which(tree$Identity == tree$Parent[i])
+    Adj[[p]] <- append(Adj[[p]], i)
+  }
+  return(Adj)
+}
+
+#' Faster way to record a path through all nodes of an adjacency matrix
+#'
+#' Nodes are traversed in the order that they should be stacked in a Muller plot. 
+#' Each node appears exactly twice.
+#'
+#' @param tree Dataframe comprising an adjacency matrix, with column names "Parent" and "Identity"
+#' @param i Current node
+#' @param Adj Adjacency matrix
+#' @param Col Node label
+#' @param is_leaf Label whether node is a leaf
+#' @param path The path vector so far
+#'
+#' @return A list, including a vector specifying the path.
+#' 
+#' @author Rob Noble, \email{robjohnnoble@gmail.com}
+#' 
+#' @examples
+#' edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6)
+#' path_vector_new(edges1)$path
+#'
+#' @export
+#' @import dplyr
+path_vector_new <- function(tree,i=NULL,Adj=NULL,Col=NULL,is_leaf=NULL,path=NULL){
+  tree <- add_root_row(tree)
+  n<-length(tree$Identity)
+  if(is.null(Adj)) Adj <- get_Adj(tree)
+  if(is.null(i)) {
+    i <- which(tree$Identity == find_start_node(tree[,1:2]))
+    path <- vector()
+  }
+  path <- c(path, i)
+  if(is.null(Col)) {
+    Col <- rep("w",n)
+    names(Col) <- unique(tree$Identity)
+  }
+  if(is.null(is_leaf)) {
+    is_leaf <- rep(FALSE, n)
+    names(is_leaf) <- unique(tree$Identity)
+  }
+  if(is.null(Adj[[i]])) is_leaf[i] <- TRUE
+  for (j in Adj[[i]]){
+    if (Col[j] == "w"){
+      L <- path_vector_new(tree,j,Adj,Col,is_leaf,path)
+      path <- L$path
+      Col<- L$colour
+      is_leaf <- L$is_leaf
+      path <- c(path, j)
+    }
+  }
+  Col[i] <- "b"
+  if(i == path[1]) path <- c(path, i)
+  return(list("colour"=Col,"is_leaf"=is_leaf,"path"=path))
+}
+
 #' Reorder a Muller plot dataframe by a vector
 #'
 #' @param df Dataframe with column names "Identity", "Parent", and either "Generation" or "Time", in which each Identity appears exactly twice
@@ -162,7 +267,7 @@ path_vector <- function(edges) {
 #' @return The reordered dataframe.
 #'
 #' @author Rob Noble, \email{robjohnnoble@gmail.com}
-#' @seealso \code{\link{path_vector}}
+#' @seealso \code{\link{path_vector_new}}
 #'
 #' @examples
 #' df <- data.frame(Generation = c(rep(0, 6), rep(1, 6)), 
@@ -171,7 +276,7 @@ path_vector <- function(edges) {
 #' require(dplyr)
 #' df <- arrange(df, Generation) # put in chronological order
 #' edges1 <- data.frame(Parent = c(1,1,1,3,3), Identity = 2:6) # adjacency matrix
-#' path <- path_vector(edges1) # path through the adjacency matrix
+#' path <- path_vector_new(edges1)$path # path through the adjacency matrix
 #' reorder_by_vector(df, path)
 #'
 #' @export
@@ -379,6 +484,7 @@ add_start_points <- function(pop_df, start_positions = 0.5) {
 #' @export
 #' @import dplyr
 #' @importFrom stats na.omit
+#' @importFrom ape collapse.singles
 get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, threshold = NA, add_zeroes = NA, smooth_start_points = NA) {
   Population <- NULL # avoid check() note
   Generation <- NULL # avoid check() note
@@ -520,7 +626,7 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
     edges <- select_(edges, ~-Age)
     
     # get the path:
-    path <- path_vector(edges)
+    path <- path_vector_new(edges)$path
     path <- rev(path) # apparently, the convention for Muller plots to have earliest-arriving genotypes plotted nearest the top
     
     # replace each Age in the path with corresponding genotype name:

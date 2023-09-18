@@ -16,6 +16,7 @@ A dataframe comprising the population dynamics.
 Extract population data from a larger data frame
 }
 \examples{
+\dontrun{
 # extract the adjacency matrix from the data frame:
 edges <- get_edges(example_df)
 
@@ -33,6 +34,7 @@ Muller_df$RelativeFitness <- as.factor(Muller_df$RelativeFitness)
 Muller_plot(Muller_df, colour_by = "RelativeFitness", 
             palette = rev(colorRampPalette(brewer.pal(9, "YlOrRd"))(num_cols)), 
             add_legend = TRUE)
+}
 
 }
 \seealso{

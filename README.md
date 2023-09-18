@@ -43,6 +43,8 @@ An older, slightly different set of instructions can be found in a blog post on 
 
 ### Version history
 
+0.6.0: Use a much faster depth-first search algorithm.
+
 0.5.6: Avoid loading or importing ape package, to avoid namespace conflict between ape and dplyr.
 
 0.5.5: Optional removal of rare types is now much more efficient for large data sets.

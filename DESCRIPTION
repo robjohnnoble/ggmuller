@@ -15,4 +15,6 @@ VignetteBuilder: knitr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/robjohnnoble/ggmuller
+BugReports: https://github.com/robjohnnoble/ggmuller/issues
 RoxygenNote: 7.1.1

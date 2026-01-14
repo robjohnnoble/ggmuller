@@ -17,8 +17,9 @@
 #'
 #' @export
 #' @import dplyr
+#' @importFrom rlang .data
 branch_singles <- function(edges) {
-  new_rows <- edges %>% group_by_(~Parent) %>% filter(n() == 1) %>% ungroup()
+  new_rows <- edges %>% group_by(.data$Parent) %>% filter(n() == 1) %>% ungroup()
   num_new_rows <- dim(new_rows)[1]
   if(num_new_rows == 0) return(edges)
   new_rows$Identity <- 1:num_new_rows + max(edges)
@@ -65,8 +66,8 @@ get_edges <- function(df, generation = NA) {
   if(!("Generation" %in% colnames(df)) | !("Identity" %in% colnames(df)) | !("Parent" %in% colnames(df))) 
     stop("colnames(df) must contain Generation (or Time), Identity and Parent")
   if(is.na(generation)) generation <- max(df$Generation)
-  edges <- filter_(df, ~Generation == generation) %>% select_(~Parent, ~Identity)
-  edges <- filter_(edges, "Parent != Identity") # remove any row that connects a node to itself
+  edges <- filter(df, .data$Generation == generation) %>% select("Parent", "Identity")
+  edges <- filter(edges, .data$Parent != .data$Identity) # remove any row that connects a node to itself
   return(edges)
 }
 
@@ -127,8 +128,8 @@ get_population_df <- function(df) {
   Population <- NULL # avoid check() note
   
   max_gen <- max(df$Generation) # final generation
-  max_gen_ids <- filter_(df, ~Generation == max_gen)$Identity # vector containing all identities at final generation
-  df <- filter_(df, ~Identity %in% max_gen_ids) # filter df to include only identities present at final generation
+  max_gen_ids <- filter(df, .data$Generation == max_gen)$Identity # vector containing all identities at final generation
+  df <- filter(df, .data$Identity %in% max_gen_ids) # filter df to include only identities present at final generation
   n <- length(unique(df$Identity)) # number of unique identities in df after filtering
   master <- data.frame(Generation = rep(unique(df$Generation), each = n),
                        Identity = unique(df$Identity)) # data frame containing all combinations of generations and identities
@@ -174,7 +175,7 @@ adj_matrix_to_tree <- function(edges) {
     edges$Identity <- as.numeric(edges$Identity)
     edges$Parent <- as.numeric(edges$Parent)
   }
-  edges <- filter_(edges, "Parent != Identity") # remove any row that connects a node to itself
+  edges <- filter(edges, .data$Parent != .data$Identity) # remove any row that connects a node to itself
   edges <- branch_singles(edges) # add branches of length zero to get rid of single nodes
   depth <- 0
   next_rank <- vector()
@@ -232,7 +233,7 @@ adj_matrix_to_tree <- function(edges) {
   
   # relabel nodes to conform with "phylo" standard:
   edges$tip.label <- ifelse(edges$is_tip, edges$Identity, NA)
-  edges <- rbind(filter_(edges, ~is_tip) %>% arrange_(~-depth, ~rank_at_depth), filter_(edges, ~is_tip == FALSE) %>% arrange_(~depth, ~rank_at_depth))
+  edges <- rbind(filter(edges, .data$is_tip) %>% arrange(desc(.data$depth), .data$rank_at_depth), filter(edges, .data$is_tip == FALSE) %>% arrange(.data$depth, .data$rank_at_depth))
   if(length(unique(edges$Identity)) > num_tips) edges$New_Identity <- c(1:num_tips, (num_tips + 2):(length(unique(edges$Identity)) + 1))
   else edges$New_Identity <- c(1:num_tips)
   edges$New_Parent <- NA
@@ -245,7 +246,7 @@ adj_matrix_to_tree <- function(edges) {
   tree <- list()
   tree$edge.length <- edges$edge.length
   tree$tip.label <- edges$tip.label[!is.na(edges$tip.label)]
-  edges <- select_(edges, ~New_Parent, ~New_Identity)
+  edges <- select(edges, "New_Parent", "New_Identity")
   colnames(edges) <- NULL
   rownames(edges) <- NULL
   tree$edge <- as.matrix(edges)

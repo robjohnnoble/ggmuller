@@ -9,11 +9,11 @@ Description: Create plots that combine a phylogeny and frequency dynamics.
     code this package exploits).
 Depends:
     R (>= 3.2.0)
-Imports: dplyr (>= 0.7.0), ggplot2, ape
+Imports: dplyr (>= 0.7.0), ggplot2, ape, rlang
 Suggests: RColorBrewer, knitr, rmarkdown
 VignetteBuilder: knitr
 License: MIT + file LICENSE
 URL: https://github.com/robjohnnoble/ggmuller
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.3

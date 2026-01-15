@@ -131,7 +131,7 @@ ggplot(Muller_df_pop, aes_string(x = "Generation", y = "Population", group = "Gr
 
 ## Converting between adjacency matrix and phylo representations
 
-We can visualize the tree from our previous example using Emmanuel Paradis’ [ape](http://ape-package.ird.fr/) package, but first we need to use the ggmuller function `adj_matrix_to_tree` to convert our adjacency matrix (with arbitrary node names) to a phylo object that ape can understand. Phylo is the standard way of representing trees in R, and it requires nodes to be numbered in a particular order.
+We can visualize the tree from our previous example using Emmanuel Paradis’ [ape](https://CRAN.R-project.org/package=ape) package, but first we need to use the ggmuller function `adj_matrix_to_tree` to convert our adjacency matrix (with arbitrary node names) to a phylo object that ape can understand. Phylo is the standard way of representing trees in R, and it requires nodes to be numbered in a particular order.
 
 ```{r}
 tree <- adj_matrix_to_tree(edges3)

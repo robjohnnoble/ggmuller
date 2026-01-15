@@ -566,6 +566,8 @@ get_Muller_df <- function(edges, pop_df, cutoff = 0, start_positions = 0.5, thre
   }
   
   if(!is.na(edges)[1]) {
+    # if the columns of the adjacency matrix are the wrong way round then switch them:
+    if(identical(colnames(edges), c("Identity", "Parent"))) edges <- edges[, 2:1]
     set1 <- unique(pop_df$Identity)
     set2 <- unique(edges$Identity)
     set3 <- unique(edges$Parent)
